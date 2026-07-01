@@ -130,6 +130,8 @@
 
 ## 4. 数据模型（Supabase Postgres）
 
+> **出生信息生命周期原则**：`birth_lat/birth_lng`（精确经纬度）是高敏感 PII，即使 `profiles.birth_*` 字段为用户主动保存（用于跨设备同步），`readings.input_payload` 里的原始出生信息也应在排盘计算完成后尽快脱敏——只保留排盘结果 `chart_data` 长期存储，`input_payload` 中的精确经纬度不做永久明文留存（可只保留到城市/时区级精度，或计算后清空）。Privacy Policy 需明确写出"生辰信息仅用于当次计算，服务端不永久存储原始经纬度明文"。
+
 ```sql
 -- 用户表（auth.users 由 Supabase Auth 管理）
 profiles (
@@ -225,18 +227,29 @@ GET  /v1/share/:reading_id    → 生成分享卡 SVG
 POST /v1/export/pdf           { reading_id }                → 生成 PDF 报告
 ```
 
-### 5.2 算法实现策略
+### 5.2 算法实现策略（已实测验证，2026-07-01）
 
-对每个 fork 项目，采取**「读源码 → 抽核心算法 → 重写为 TypeScript」**流程：
+**核心结论：不需要对 14 个 fork 逐一重写。`hhszzzz/taibu` 已经把核心算法拆成一个独立发布的 npm 包 `taibu-core`（MIT License，当前 v3.4.0，`npm install taibu-core` 即可），domains 覆盖：**
 
-- `china-testing/bazi`（Python）：核心是万年历 + 干支推算，参考其农历转换函数，重写为 TS。
-- `ekelen/tarot-api`（JS）：直接是 JSON 数据，可直接复用 Rider-Waite 牌面 JSON，TS 重写抽牌逻辑。
-- `kentang2017/ichingshifa`（Python）：大衍之数算法可重写为纯函数。
-- `hhszzzz/taibu`（TS）：已经 TS 实现，**优先复用其核心**！这是少见的 TS 实现。
-- `dreamhunter2333/chatgpt-tarot-divination`（TS）：同样是 TS 实现，复用其多术结构。
-- `NodleCode/Nodle-I-Ching`（TS）：卦象数据可直接用。
+```
+almanac, astrology, bazi, bazi-dayun, bazi-pillars-resolve,
+daliuren, liuyao, meihua, qimen, taiyi,
+xiaoliuren, ziwei, ziwei-flying-star, ziwei-horoscope, tarot
+```
 
-**复用策略**：能直接 import 的 TS 包优先；Python 算法一律重写；JS 算法用 Deno 直接跑（Edge Functions 兼容 Node 生态）。
+**这基本覆盖了 Medium-8 里除周公解梦（本来就是自建）外的全部术数。** 实测（本地 Node 环境，`npm install taibu-core` 后直接 `import 'taibu-core/qimen'` / `'taibu-core/bazi'`）：
+
+- `calculateQimen({ year, month, day, hour, minute })`——**8 个术数里复杂度最高（⭐⭐⭐⭐⭐）的奇门遁甲**，零改动直接调用成功，返回完整九宫飞盘（值符值使、九星八门八神、纳音空亡等）。
+- `calculateBazi({ birthYear, birthMonth, birthDay, birthHour, gender })`——八字直接调用成功，返回完整四柱（十神/藏干/纳音/神煞/空亡）。
+- `ziwei / liuyao / meihua / tarot / taiyi / daliuren / astrology / xiaoliuren` 的 `calculate*` 函数均可正常 `import`（未逐一跑通输出，但导入和类型定义均正常）。
+
+**因此原计划里"重写 `china-testing/bazi`（Python）、`kentang2017/ichingshifa`（Python）"这两项工作可以直接砍掉**：
+- `china-testing/bazi` 依赖 `lunar_python`（PyPI 包）和 `sxtwl`（原生天文历库），无法在 Deno 里跑；但 `taibu-core` 用的是 `lunar_python` 的 JS 姊妹库 `lunar-javascript`（同一作者 6tail 维护），八字实现已经比这个 fork 更完整，直接弃用该 fork。
+- `kentang2017/ichingshifa` 是 Streamlit 全栈 App，算法耦合在 UI 代码里，还依赖 numpy/ephem，核心卦象数据库是一个二进制 pickle 文件（无法被 JS 直接读取）。`taibu-core` 已自带 `liuyao`（六爻）和 `meihua`（梅花易数）两个模块——如果这两种起卦法能覆盖产品需求，同样可以跳过这个 fork；只有明确要做「大衍之数/蓍草占卜」这个特定流派时，才需要单独把 ichingshifa 的 `data.pkl` 转成 JSON 后移植。
+
+**唯一需要在真实环境里补测的风险点**：`taibu-core` 的奇门算法内部通过临时修改全局变量 `process.env.TZ` 来处理时区转换（配合内置互斥锁防止并发请求互相干扰），这是 Node 环境下常见但脆弱的写法。本地用 **Node** 验证是通的，但 Supabase Edge Functions 跑的是 **Deno** 运行时，`process.env.TZ` 对 `Date` 计算是否同样生效，需要在真正部署到 Supabase 项目（或至少 `deno run`）后再测一次，不能假设 Node 和 Deno 行为完全一致。
+
+**修订后的复用策略**：Week 3-7 的排盘 Edge Function 开发，优先直接 `npm install taibu-core` 后按 domain 逐个接线（真正是"改 UI + 接数据"量级的工作）；`tarot-api`、`chatgpt-tarot-divination`、`Nodle-I-Ching` 等其余 fork 降级为"备用/交叉验证参考"，不再是必须移植的对象；`china-testing/bazi`、`kentang2017/ichingshifa` 直接标记为弃用（除非后续明确需要蓍草占卜这个细分流派）。
 
 ### 5.3 解读 Prompt 设计
 
@@ -662,17 +675,29 @@ function pickModel(system: string, tier: string, locale: string) {
 
 | 限制 | 影响 | 对策 |
 |---|---|---|
-| **仅供个人实验** | 不可商用 | Phase 2 切到 DeepSeek 付费 API；Phase 1 免责声明中明确"测试阶段" |
+| **仅供个人实验** | 不可商用 | 见 14.6.1 硬开关；Phase 1 免责声明中明确"测试阶段" |
 | **无 SLA** | 延迟波动 | 客户端显示 fallback 状态；超时降级到模板解读 |
 | **智力随时间下降**（高峰期降级小模型） | 解读质量波动 | A/B Test 不同 provider；记录用户反馈用于选优 |
 | **顶级模型无免费层**（无 GPT-5 / Opus） | 复杂推理受限 | PDF 报告分级：标准版用免费模型，Premium 版用 DeepSeek 付费 |
-| **ToS 风险**（Gemini、Cohere） | 商用违规风险 | Phase 2 切换前审计所有 provider ToS；规避 Cohere、谨慎 Gemini |
-| **本地部署** | 增加运维负担 | 用 Docker；Cloudflare Tunnel 暴露（不直连公网） |
-| **不能直连公网** | 客户端不能直接调 | 必须经 Supabase Edge Function 中转（已纳入架构） |
+| **ToS 风险**（Gemini、Cohere） | 商用违规风险 | 见 14.6.1 硬开关前完成所有 provider ToS 审计；规避 Cohere、谨慎 Gemini |
+| **本地部署** | 增加运维负担 | 用 Docker；纯本地自测阶段（`supabase functions serve`）不需要暴露 |
+| **不能直连公网** | 云端 Edge Function 连不上本地服务 | 见 14.6.1，本地自测和云端部署要分开处理 |
+
+### 14.6.1 商业化切换的硬开关（关键）
+
+FreeLLMAPI 及其聚合的多数免费层 ToS 只允许"个人实验"用途。当前 Phase 1 仅是自测（自己验证模型解读效果），未对外开放，符合个人实验场景，**不构成 ToS 冲突**。但这个安全边界不是按"Phase 2 / Week 9"这个时间点划定的，而是按**是否有非本人用户在用**划定：
+
+> **硬性规则**：只要广告位/付费墙对任何非本人用户开放（哪怕只是邀请几个朋友内测），当天必须切换到付费 API（DeepSeek 或其他可商用方案），不得因为赶进度继续用 FreeLLMAPI 免费层。
+
+另外，这个边界还牵涉部署环境本身：自测如果完全在本地 CLI（`supabase functions serve`）里跑，本地 Edge Function 和本地/同网络的 FreeLLMAPI 之间没有可达性问题；但**一旦把 Edge Function 部署到 Supabase 云端项目**（哪怕只是自己远程连测），云端 Edge Function 就无法再访问绑定 `127.0.0.1` 或未暴露的本地/VPS 服务。届时需要二选一：
+- 用 Cloudflare Tunnel（或类似方案）做**带鉴权**的公网暴露，接受这就是"暴露"，并加访问控制/限流；或
+- 跳过 FreeLLMAPI 代理层，Edge Function 直连允许服务端调用的免费层 API（如 Groq、Google AI Studio 官方 SDK）。
+
+建议在开始云端联调前先确定选哪条路，而不是等部署失败时再决定。
 
 ### 14.7 切换到 DeepSeek 的迁移路径（Phase 2）
 
-Phase 2 准备正式上线时，只需修改 Supabase Edge Function 中的 `pickModel()` 和 base URL：
+准备触发 14.6.1 的硬开关时，只需修改 Supabase Edge Function 中的 `pickModel()` 和 base URL：
 
 ```typescript
 // Phase 2 切换后

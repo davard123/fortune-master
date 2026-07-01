@@ -355,6 +355,8 @@ gh repo fork g-battaglia/Astrologer-API --clone=false
 
 ## 9. 数据模型（Postgres）
 
+> **出生信息生命周期原则**：`birth_lat/birth_lng`（精确经纬度）是高敏感 PII。`readings.input_payload` 里的原始出生信息应在排盘计算完成后尽快脱敏——只保留排盘结果 `chart_data` 长期存储，`input_payload` 不做原始经纬度的永久明文留存。Privacy Policy 需明确写出"生辰信息仅用于当次计算，服务端不永久存储原始经纬度明文"。
+
 ```sql
 -- 用户档案
 profiles (
@@ -450,14 +452,29 @@ GET  /v1/share/:reading_id    → 生成分享卡 SVG
 POST /v1/export/pdf           { reading_id }                → 生成 PDF 报告
 ```
 
-### 10.2 算法实现策略
+### 10.2 算法实现策略（已实测验证，2026-07-01）
 
-| fork 仓库 | 原语言 | 集成方式 |
-|---|---|---|
-| `taibu`、`mingyu`、`chatgpt-tarot-divination` | TypeScript | ✅ 直接 import 核心逻辑 |
-| `tarot-api`、`uxiaohan/Tarot-Web` | JavaScript | ✅ Deno 直接运行 |
-| `china-testing/bazi`、`kentang2017/ichingshifa` | Python | 🔄 重写为 TypeScript |
-| `NodleCode/Nodle-I-Ching`、`chengjun/iching` | JS/TS | ✅ 复用数据结构 |
+**核心结论：不需要对 14 个 fork 逐一重写。`hhszzzz/taibu` 已把核心算法拆成独立发布的 npm 包 `taibu-core`（MIT License，v3.4.0，`npm install taibu-core` 即可），domains 覆盖：**
+
+```
+almanac, astrology, bazi, bazi-dayun, bazi-pillars-resolve,
+daliuren, liuyao, meihua, qimen, taiyi,
+xiaoliuren, ziwei, ziwei-flying-star, ziwei-horoscope, tarot
+```
+
+**基本覆盖了 Medium-8 里除周公解梦（本来就是自建）外的全部术数。** 实测（本地 Node，`npm install taibu-core` 后 `import 'taibu-core/qimen'` / `'taibu-core/bazi'`）：
+
+- `calculateQimen({ year, month, day, hour, minute })`——**复杂度最高（⭐⭐⭐⭐⭐）的奇门遁甲**，零改动直接调用成功，返回完整九宫飞盘。
+- `calculateBazi({ birthYear, birthMonth, birthDay, birthHour, gender })`——八字直接调用成功，返回完整四柱（十神/藏干/纳音/神煞/空亡）。
+- `ziwei / liuyao / meihua / tarot / taiyi / daliuren / astrology / xiaoliuren` 的 `calculate*` 函数均可正常 `import`。
+
+**原计划里"重写 `china-testing/bazi`（Python）、`kentang2017/ichingshifa`（Python）"可以直接砍掉**：
+- `china-testing/bazi` 依赖 PyPI 包 `lunar_python` + 原生天文历库 `sxtwl`，无法在 Deno 里跑；但 `taibu-core` 用的是 `lunar_python` 的 JS 姊妹库 `lunar-javascript`（同一作者 6tail 维护），八字实现已更完整，直接弃用该 fork。
+- `kentang2017/ichingshifa` 是 Streamlit 全栈 App，算法耦合在 UI 里，依赖 numpy/ephem，核心卦象数据库是二进制 pickle 文件（JS 无法直接读取）。`taibu-core` 已自带 `liuyao`（六爻）和 `meihua`（梅花易数）——如果这两种起卦法够用，同样可以跳过这个 fork；只有明确要做"大衍之数/蓍草占卜"这个特定流派时才需要单独移植。
+
+**唯一需要在真实环境补测的风险点**：`taibu-core` 的奇门算法内部通过临时修改全局 `process.env.TZ` 来处理时区转换（配合互斥锁防并发干扰）。本地 Node 验证是通的，但 Supabase Edge Functions 跑的是 **Deno** 运行时，`process.env.TZ` 对 `Date` 计算是否同样生效需要在真正部署后（或至少 `deno run`）再测一次，不能假设 Node/Deno 行为一致。
+
+**修订后的策略**：Week 3-7 排盘 Edge Function 开发，优先 `npm install taibu-core` 按 domain 逐个接线；`tarot-api`、`chatgpt-tarot-divination`、`Nodle-I-Ching` 等其余 fork 降级为备用/交叉验证参考，不再是必须移植对象；`china-testing/bazi`、`kentang2017/ichingshifa` 标记为弃用。
 
 ### 10.3 Prompt 设计模板
 
@@ -693,13 +710,21 @@ function pickModel(system: string, tier: string, locale: string) {
 
 | 限制 | 影响 | 对策 |
 |---|---|---|
-| **仅供个人实验** | 不可商用 | Phase 2 切到 DeepSeek 付费 API |
+| **仅供个人实验** | 不可商用 | 见 12.6.1 硬开关 |
 | **无 SLA** | 延迟波动 | 客户端显示 fallback 状态；超时降级到模板 |
 | **智力随时间下降**（高峰期降级小模型） | 解读质量波动 | A/B Test 不同 provider；记录用户反馈 |
 | **顶级模型无免费层**（无 GPT-5 / Opus） | 复杂推理受限 | PDF 报告分级：标准版用免费模型，Premium 版用 DeepSeek 付费 |
-| **ToS 风险**（Gemini、Cohere） | 商用违规风险 | Phase 2 切换前审计 ToS；规避 Cohere |
-| **本地部署** | 增加运维负担 | Docker 一键；Cloudflare Tunnel 暴露（不直连公网） |
-| **不能直连公网** | 客户端不能直接调 | 必须经 Supabase Edge Function 中转 |
+| **ToS 风险**（Gemini、Cohere） | 商用违规风险 | 见 12.6.1 硬开关前完成 ToS 审计；规避 Cohere |
+| **本地部署** | 增加运维负担 | Docker 一键；纯本地自测阶段不需要暴露 |
+| **不能直连公网** | 云端 Edge Function 连不上本地服务 | 见 12.6.1，本地自测和云端部署要分开处理 |
+
+### 12.6.1 商业化切换的硬开关（关键）
+
+FreeLLMAPI 及聚合的多数免费层 ToS 只允许"个人实验"用途。当前阶段仅是自测（自己验证模型解读效果），未对外开放，符合个人实验场景，**不构成 ToS 冲突**。但这个边界不是按"到 Phase 2"这个时间点划定的，而是按**是否有非本人用户在用**划定：
+
+> **硬性规则**：只要广告位/付费墙对任何非本人用户开放（哪怕只是邀请几个朋友内测），当天必须切换到付费 API，不得因为赶进度继续用免费层。
+
+另外要注意部署环境的分界：自测如果完全在本地 CLI（`supabase functions serve`）里跑，本地 Edge Function 和本地/同网络的 FreeLLMAPI 之间没有可达性问题；但**一旦把 Edge Function 部署到 Supabase 云端项目**（哪怕只是自己远程连测），云端 Edge Function 就无法再访问绑定 `127.0.0.1` 或未暴露的本地/VPS 服务。届时需二选一：用 Cloudflare Tunnel 做带鉴权的公网暴露，或跳过代理层直连允许服务端调用的免费 API（如 Groq、Google AI Studio 官方 SDK）。建议开始云端联调前先确定选哪条路。
 
 ### 12.7 Phase 2 切换到 DeepSeek（业务代码 0 改动）
 
