@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fortune Master · 中西算命大全</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Noto+Serif+SC:wght@300;400;500;600&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0c16;
+  --ink-2:#10131f;
+  --ink-3:#171b2c;
+  --gold:#c9a45c;
+  --gold-bright:#e8c987;
+  --gold-dim:#8a7440;
+  --cinnabar:#c04851;
+  --jade:#5e8c7a;
+  --moon:#e9e4d6;
+  --moon-dim:#a29d8f;
+  --moon-faint:#6b675c;
+  --hairline:rgba(201,164,92,.22);
+  --hairline-soft:rgba(201,164,92,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink);
+  color:var(--moon);
+  font-family:'Noto Serif SC',serif;
+  font-weight:300;
+  overflow-x:hidden;
+  line-height:1.7;
+}
+::selection{background:var(--gold-dim);color:var(--ink)}
+
+/* ---------- star field ---------- */
+#sky{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ---------- shared ---------- */
+.en{font-family:'Cinzel',serif;letter-spacing:.14em}
+.frame{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 32px}
+h1,h2,h3{font-weight:400}
+
+/* ---------- top bar ---------- */
+nav{
+  position:relative;z-index:2;
+  display:flex;justify-content:space-between;align-items:center;
+  max-width:1080px;margin:0 auto;padding:26px 32px;
+}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-seal{
+  width:40px;height:40px;border:1px solid var(--gold);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'ZCOOL XiaoWei',serif;font-size:19px;color:var(--gold);
+  position:relative;
+}
+.brand-seal::after{
+  content:"";position:absolute;inset:3px;border:1px solid var(--hairline);border-radius:50%;
+}
+.brand-name{font-size:15px;letter-spacing:.32em;color:var(--moon)}
+.brand-name .en{display:block;font-size:10px;color:var(--gold);margin-top:2px;letter-spacing:.3em}
+.nav-right{display:flex;align-items:center;gap:22px;font-size:13px;color:var(--moon-dim)}
+.nav-right a{color:var(--moon-dim);text-decoration:none;transition:color .3s}
+.nav-right a:hover{color:var(--gold-bright)}
+.lang-switch{
+  border:1px solid var(--hairline);padding:5px 14px;border-radius:2px;
+  color:var(--gold);cursor:pointer;background:none;font-family:inherit;font-size:12px;
+  letter-spacing:.15em;transition:all .3s;
+}
+.lang-switch:hover{border-color:var(--gold);background:rgba(201,164,92,.08)}
+.test-badge{
+  font-size:11px;color:var(--jade);border:1px solid rgba(94,140,122,.4);
+  padding:3px 10px;border-radius:2px;letter-spacing:.1em;
+}
+
+/* ---------- hero ---------- */
+.hero{
+  position:relative;z-index:1;
+  min-height:78vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  padding:40px 24px 80px;
+}
+.bagua-wrap{position:relative;width:340px;height:340px;margin-bottom:8px}
+.bagua-wrap svg{position:absolute;inset:0;width:100%;height:100%}
+.spin-slow{animation:spin 120s linear infinite;transform-origin:center}
+.spin-rev{animation:spinrev 90s linear infinite;transform-origin:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spinrev{to{transform:rotate(-360deg)}}
+.hero-title{
+  font-size:clamp(38px,6vw,64px);
+  letter-spacing:.28em;text-indent:.28em;
+  font-family:'ZCOOL XiaoWei',serif;
+  color:var(--moon);
+  margin-top:-170px;
+  position:relative;z-index:2;
+  text-shadow:0 0 40px rgba(10,12,22,.9);
+}
+.hero-sub-en{
+  font-size:clamp(13px,1.6vw,17px);color:var(--gold);margin-top:18px;
+}
+.hero-desc{
+  margin-top:26px;font-size:14px;color:var(--moon-dim);max-width:520px;
+  letter-spacing:.08em;
+}
+.hero-cta{
+  margin-top:44px;display:inline-block;
+  border:1px solid var(--gold);color:var(--gold-bright);
+  padding:14px 52px;font-size:14px;letter-spacing:.4em;text-indent:.4em;
+  text-decoration:none;position:relative;transition:all .4s;
+  background:linear-gradient(rgba(201,164,92,0),rgba(201,164,92,0));
+}
+.hero-cta:hover{background:rgba(201,164,92,.1);box-shadow:0 0 30px rgba(201,164,92,.15)}
+.hero-cta::before,.hero-cta::after{
+  content:"";position:absolute;width:7px;height:7px;border:1px solid var(--gold);
+  transition:all .4s;
+}
+.hero-cta::before{top:-4px;left:-4px;border-right:none;border-bottom:none}
+.hero-cta::after{bottom:-4px;right:-4px;border-left:none;border-top:none}
+.scroll-hint{margin-top:70px;color:var(--moon-faint);font-size:11px;letter-spacing:.3em;animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(8px);opacity:1}}
+
+/* ---------- section heading ---------- */
+.sec-head{text-align:center;margin:90px 0 54px}
+.sec-head .zh{font-size:26px;letter-spacing:.5em;text-indent:.5em;font-family:'ZCOOL XiaoWei',serif}
+.sec-head .en{display:block;font-size:11px;color:var(--gold);margin-top:10px}
+.sec-head .rule{
+  width:180px;height:9px;margin:22px auto 0;position:relative;
+}
+.sec-head .rule::before{content:"";position:absolute;top:4px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)}
+.sec-head .rule::after{
+  content:"";position:absolute;top:1px;left:50%;transform:translateX(-50%) rotate(45deg);
+  width:7px;height:7px;border:1px solid var(--gold);background:var(--ink);
+}
+
+/* ---------- divination grid ---------- */
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:20px;padding-bottom:30px;
+}
+.card{
+  position:relative;background:var(--ink-2);
+  border:1px solid var(--hairline-soft);
+  padding:34px 26px 28px;cursor:pointer;
+  transition:transform .45s cubic-bezier(.22,1,.36,1),border-color .45s,background .45s;
+  overflow:hidden;
+}
+.card::before{
+  content:"";position:absolute;inset:6px;border:1px solid transparent;transition:border-color .45s;
+  pointer-events:none;
+}
+.card:hover{transform:translateY(-6px);border-color:var(--hairline);background:var(--ink-3)}
+.card:hover::before{border-color:var(--hairline-soft)}
+.card .emblem{
+  width:74px;height:74px;margin-bottom:22px;
+  display:flex;align-items:center;justify-content:center;
+}
+.card .emblem svg{width:100%;height:100%;overflow:visible}
+.card:hover .emblem svg .glow-on-hover{filter:drop-shadow(0 0 6px rgba(201,164,92,.7))}
+.card h3{font-size:19px;letter-spacing:.28em;color:var(--moon)}
+.card .card-en{font-size:10px;color:var(--gold);margin-top:5px;display:block}
+.card p{font-size:12.5px;color:var(--moon-dim);margin-top:14px;line-height:1.8}
+.card .go{
+  margin-top:20px;font-size:11px;color:var(--gold-dim);letter-spacing:.2em;
+  display:flex;align-items:center;gap:8px;transition:color .3s,gap .3s;
+}
+.card:hover .go{color:var(--gold-bright);gap:14px}
+.card .go .line{display:inline-block;width:26px;height:1px;background:currentColor}
+.card .hot{
+  position:absolute;top:14px;right:14px;font-size:10px;color:var(--cinnabar);
+  border:1px solid rgba(192,72,81,.5);padding:2px 8px;letter-spacing:.15em;
+}
+
+/* ---------- bazi demo section ---------- */
+.demo{
+  margin:60px 0 100px;
+  background:var(--ink-2);border:1px solid var(--hairline-soft);
+  padding:56px 56px 60px;position:relative;
+}
+.demo::before{
+  content:"";position:absolute;inset:10px;border:1px solid var(--hairline-soft);pointer-events:none;
+}
+.demo-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:12px;margin-bottom:44px}
+.demo-head .t{font-size:21px;letter-spacing:.3em;font-family:'ZCOOL XiaoWei',serif}
+.demo-head .t .en{display:block;font-size:10px;color:var(--gold);margin-top:6px}
+.demo-head .meta{font-size:12px;color:var(--moon-faint)}
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:14px}
+.pillar{
+  text-align:center;padding:26px 10px 22px;
+  background:linear-gradient(180deg,rgba(201,164,92,.06),rgba(201,164,92,.015));
+  border:1px solid var(--hairline-soft);position:relative;
+}
+.pillar.day{border-color:var(--gold-dim);background:linear-gradient(180deg,rgba(201,164,92,.13),rgba(201,164,92,.03))}
+.pillar .lab{font-size:11px;color:var(--gold);letter-spacing:.3em;margin-bottom:16px}
+.pillar .gz{font-family:'ZCOOL XiaoWei',serif;font-size:44px;line-height:1.25;color:var(--moon)}
+.pillar.day .gz{color:var(--gold-bright)}
+.pillar .ss{font-size:11px;color:var(--moon-faint);margin-top:12px;letter-spacing:.1em}
+.daymaster{font-size:12px;color:var(--moon-dim);margin-bottom:40px;letter-spacing:.12em}
+.daymaster b{color:var(--gold-bright);font-weight:500}
+
+.wuxing{margin-bottom:44px}
+.wuxing .wx-label{font-size:12px;color:var(--gold);letter-spacing:.25em;margin-bottom:18px}
+.wx-row{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.wx-row .name{width:34px;font-size:14px;font-family:'ZCOOL XiaoWei',serif}
+.wx-row .bar{flex:1;height:5px;background:rgba(255,255,255,.05);position:relative}
+.wx-row .bar i{position:absolute;left:0;top:0;bottom:0;display:block}
+.wx-row .pct{width:40px;text-align:right;font-size:11px;color:var(--moon-dim)}
+.wx-metal i{background:linear-gradient(90deg,#8f8f96,#d8d8dd)}
+.wx-fire i{background:linear-gradient(90deg,#8c3a41,#c04851)}
+.wx-earth i{background:linear-gradient(90deg,#8a6f3f,#c9a45c)}
+.wx-wood i{background:linear-gradient(90deg,#3f6b57,#5e8c7a)}
+.wx-water i{background:linear-gradient(90deg,#2f4b6e,#4a76a8)}
+
+.reading .r-label{font-size:12px;color:var(--gold);letter-spacing:.25em;margin-bottom:22px}
+.r-block{
+  border-left:1px solid var(--gold-dim);padding:2px 0 2px 20px;margin-bottom:22px;
+}
+.r-block .r-t{font-size:14px;color:var(--gold-bright);letter-spacing:.2em;margin-bottom:6px}
+.r-block .r-t .en{font-size:10px;color:var(--gold-dim);margin-left:10px;letter-spacing:.12em}
+.r-block p{font-size:13.5px;color:var(--moon-dim);line-height:2}
+
+/* ---------- footer ---------- */
+footer{
+  position:relative;z-index:1;border-top:1px solid var(--hairline-soft);
+  padding:40px 32px 48px;text-align:center;color:var(--moon-faint);font-size:11.5px;
+  letter-spacing:.1em;line-height:2.2;
+}
+footer .en{color:var(--gold-dim);font-size:10px}
+
+@media (max-width:720px){
+  .demo{padding:36px 22px 40px}
+  .pillar .gz{font-size:32px}
+  .hero-title{margin-top:-140px}
+  .bagua-wrap{width:270px;height:270px}
+  nav{flex-wrap:wrap;gap:14px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+
+<nav>
+  <div class="brand">
+    <div class="brand-seal">卜</div>
+    <div class="brand-name">中西算命大全<span class="en">FORTUNE MASTER</span></div>
+  </div>
+  <div class="nav-right">
+    <span class="test-badge">自测版 · SELF-TEST</span>
+    <a href="#arts">術數 Arts</a>
+    <a href="#demo">排盤 Demo</a>
+    <button class="lang-switch">EN / 中</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="bagua-wrap" aria-hidden="true">
+    <svg viewBox="0 0 340 340" class="spin-slow">
+      <g fill="none" stroke="#c9a45c" stroke-opacity=".35">
+        <circle cx="170" cy="170" r="168" stroke-width="1"/>
+        <circle cx="170" cy="170" r="158" stroke-width=".5" stroke-dasharray="2 6"/>
+      </g>
+      <g id="trigrams"></g>
+    </svg>
+    <svg viewBox="0 0 340 340" class="spin-rev">
+      <g fill="none" stroke="#c9a45c" stroke-opacity=".5">
+        <circle cx="170" cy="170" r="118" stroke-width=".6"/>
+        <circle cx="170" cy="170" r="112" stroke-width=".4" stroke-dasharray="1 5"/>
+      </g>
+      <g id="zodiacring" font-family="'Noto Serif SC',serif" font-size="13" fill="#8a7440" text-anchor="middle"></g>
+    </svg>
+    <svg viewBox="0 0 340 340">
+      <g transform="translate(170 170)">
+        <circle r="46" fill="none" stroke="#c9a45c" stroke-opacity=".55" stroke-width=".8"/>
+        <path d="M0,-40 A40,40 0 0,1 0,40 A20,20 0 0,1 0,0 A20,20 0 0,0 0,-40 Z" fill="#c9a45c" fill-opacity=".85"/>
+        <path d="M0,-40 A40,40 0 0,0 0,40 A20,20 0 0,0 0,0 A20,20 0 0,1 0,-40 Z" fill="#10131f"/>
+        <circle cy="-20" r="6" fill="#10131f"/>
+        <circle cy="20" r="6" fill="#c9a45c" fill-opacity=".85"/>
+      </g>
+    </svg>
+  </div>
+  <h1 class="hero-title">問道於天</h1>
+  <div class="hero-sub-en en">EAST &amp; WEST DIVINATION · FORTUNE MASTER</div>
+  <p class="hero-desc">八字 · 紫微 · 周易 · 塔羅 · 占星 —— 中西八門術數，一站排盤，AI 深度解讀。<br>Eight divination arts from East and West, one destiny chart.</p>
+  <a class="hero-cta" href="#arts">開始占卜</a>
+  <div class="scroll-hint">往下探尋 SCROLL</div>
+</section>
+
+<main class="frame">
+  <div class="sec-head" id="arts">
+    <div class="zh">八門術數</div>
+    <span class="en">EIGHT DIVINATION ARTS</span>
+    <div class="rule"></div>
+  </div>
+
+  <div class="grid" id="cardgrid"></div>
+
+  <div class="sec-head" id="demo">
+    <div class="zh">命盤示例</div>
+    <span class="en">SAMPLE READING · BAZI</span>
+    <div class="rule"></div>
+  </div>
+
+  <section class="demo">
+    <div class="demo-head">
+      <div class="t">八字排盤<span class="en">FOUR PILLARS OF DESTINY</span></div>
+      <div class="meta">乾造 · 1990年5月15日 巳時 · 真太陽時已校正</div>
+    </div>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="lab">年柱 YEAR</div>
+        <div class="gz">庚<br>午</div>
+        <div class="ss">比肩 · 路旁土</div>
+      </div>
+      <div class="pillar">
+        <div class="lab">月柱 MONTH</div>
+        <div class="gz">辛<br>巳</div>
+        <div class="ss">劫財 · 白蠟金</div>
+      </div>
+      <div class="pillar day">
+        <div class="lab">日柱 DAY</div>
+        <div class="gz">庚<br>辰</div>
+        <div class="ss">日主 · 白蠟金</div>
+      </div>
+      <div class="pillar">
+        <div class="lab">時柱 HOUR</div>
+        <div class="gz">辛<br>巳</div>
+        <div class="ss">劫財 · 白蠟金</div>
+      </div>
+    </div>
+    <div class="daymaster">日主 <b>庚金</b> · 生於巳月 · 得令而旺 &nbsp;|&nbsp; Day master: Yang Metal, born in early summer</div>
+
+    <div class="wuxing">
+      <div class="wx-label">五行分佈 FIVE ELEMENTS</div>
+      <div class="wx-row wx-metal"><span class="name">金</span><span class="bar"><i style="width:32%"></i></span><span class="pct">32%</span></div>
+      <div class="wx-row wx-fire"><span class="name">火</span><span class="bar"><i style="width:24%"></i></span><span class="pct">24%</span></div>
+      <div class="wx-row wx-earth"><span class="name">土</span><span class="bar"><i style="width:20%"></i></span><span class="pct">20%</span></div>
+      <div class="wx-row wx-wood"><span class="name">木</span><span class="bar"><i style="width:12%"></i></span><span class="pct">12%</span></div>
+      <div class="wx-row wx-water"><span class="name">水</span><span class="bar"><i style="width:12%"></i></span><span class="pct">12%</span></div>
+    </div>
+
+    <div class="reading">
+      <div class="r-label">AI 深度解讀 FULL READING</div>
+      <div class="r-block">
+        <div class="r-t">性格 <span class="en">PERSONALITY</span></div>
+        <p>庚金日主坐辰土印庫，稟性剛毅果決，行事自有章法。金旺得令，鋒芒內蘊，然三金並立，偶有固執之嫌，宜納雅言、蓄柔韌。</p>
+      </div>
+      <div class="r-block">
+        <div class="r-t">事業 <span class="en">CAREER</span></div>
+        <p>月時雙巳藏丙火七殺，殺印相生，宜入競爭之局——工程、金融、律法皆合命局之性。中年火運漸起，鍛金成器，穩紮穩打者成。</p>
+      </div>
+      <div class="r-block">
+        <div class="r-t">財運 <span class="en">WEALTH</span></div>
+        <p>局中財星不顯，財藏於巳中戊土之下，主財源不張揚而綿長。忌冒進投機，宜以技藝生財、以人脈通財。</p>
+      </div>
+      <div class="r-block">
+        <div class="r-t">感情 · 健康 <span class="en">RELATIONSHIPS · HEALTH</span></div>
+        <p>日坐華蓋孤宿，情路宜主動言明、忌冷戰相持。金旺者肺氣易燥，秋冬謹養呼吸之疾，晨練納氣為佳。</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  僅供娛樂與文化體驗 · 不構成任何醫療、法律、投資建議<br>
+  <span class="en">FOR ENTERTAINMENT PURPOSES ONLY · FORTUNE MASTER © 2026</span>
+</footer>
+
+<script>
+/* ---------- star field ---------- */
+const cv = document.getElementById('sky'), cx = cv.getContext('2d');
+let stars = [];
+function resize(){
+  cv.width = innerWidth; cv.height = innerHeight;
+  stars = Array.from({length: Math.floor(innerWidth*innerHeight/9000)}, () => ({
+    x: Math.random()*cv.width,
+    y: Math.random()*cv.height,
+    r: Math.random()*1.1 + .2,
+    p: Math.random()*Math.PI*2,
+    s: .5 + Math.random()*1.5
+  }));
+}
+addEventListener('resize', resize); resize();
+(function tick(t){
+  cx.clearRect(0,0,cv.width,cv.height);
+  const time = t/1000;
+  for(const st of stars){
+    const a = .25 + .55*Math.abs(Math.sin(st.p + time*st.s*.4));
+    cx.beginPath();
+    cx.arc(st.x, st.y, st.r, 0, 7);
+    cx.fillStyle = `rgba(233,228,214,${a})`;
+    cx.fill();
+  }
+  requestAnimationFrame(tick);
+})(0);
+
+/* ---------- bagua trigrams (drawn programmatically) ---------- */
+const TRI = [ [1,1,1],[0,1,1],[1,0,1],[0,0,1],[1,1,0],[0,1,0],[1,0,0],[0,0,0] ]; // 乾兌離震巽坎艮坤
+const tg = document.getElementById('trigrams');
+TRI.forEach((lines, i) => {
+  const ang = i*45 - 90;
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('transform', `rotate(${ang} 170 170) translate(170 34)`);
+  lines.forEach((solid, j) => {
+    const y = j*8;
+    if(solid){
+      g.innerHTML += `<rect x="-16" y="${y}" width="32" height="4" fill="#c9a45c" fill-opacity=".8"/>`;
+    } else {
+      g.innerHTML += `<rect x="-16" y="${y}" width="13" height="4" fill="#c9a45c" fill-opacity=".8"/>
+                      <rect x="3"  y="${y}" width="13" height="4" fill="#c9a45c" fill-opacity=".8"/>`;
+    }
+  });
+  tg.appendChild(g);
+});
+
+/* ---------- zodiac / earthly branch ring ---------- */
+const BR = '子丑寅卯辰巳午未申酉戌亥'.split('');
+const zr = document.getElementById('zodiacring');
+BR.forEach((ch, i) => {
+  const a = (i*30 - 90) * Math.PI/180;
+  const x = 170 + Math.cos(a)*136, y = 170 + Math.sin(a)*136;
+  const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('x', x); t.setAttribute('y', y+4.5);
+  t.textContent = ch;
+  zr.appendChild(t);
+});
+
+/* ---------- divination cards ---------- */
+const S = 'http://www.w3.org/2000/svg';
+const gold = '#c9a45c', goldB = '#e8c987', dim = '#8a7440';
+const cards = [
+  { zh:'八字', en:'FOUR PILLARS · BAZI', hot:false,
+    desc:'以生辰四柱天干地支，推演一生格局起伏。',
+    svg:`<g class="glow-on-hover" stroke="${gold}" fill="none" stroke-width="1.2">
+      <rect x="14" y="10" width="10" height="54" rx="1"/><rect x="30" y="10" width="10" height="54" rx="1"/>
+      <rect x="46" y="10" width="10" height="54" rx="1"/><rect x="62" y="10" width="10" height="54" rx="1" stroke="${goldB}"/>
+      <line x1="14" y1="37" x2="72" y2="37" stroke-opacity=".5"/></g>` },
+  { zh:'紫微斗數', en:'ZI WEI DOU SHU', hot:false,
+    desc:'十四主星飛佈十二宮，命宮財帛官祿盡覽。',
+    svg:`<g class="glow-on-hover" stroke="${gold}" fill="none" stroke-width="1">
+      <rect x="10" y="10" width="54" height="54"/>
+      <path d="M28 10v54M46 10v54M10 28h54M10 46h54" stroke-opacity=".55"/>
+      <circle cx="37" cy="37" r="7" stroke="${goldB}"/><circle cx="37" cy="37" r="1.6" fill="${goldB}" stroke="none"/></g>` },
+  { zh:'周易六爻', en:'I CHING', hot:false,
+    desc:'三枚銅錢起卦，六爻動靜之間窺見事機。',
+    svg:`<g class="glow-on-hover" fill="${gold}">
+      <rect x="14" y="12" width="46" height="5"/><rect x="14" y="22" width="20" height="5"/><rect x="40" y="22" width="20" height="5"/>
+      <rect x="14" y="32" width="46" height="5" fill="${goldB}"/><rect x="14" y="42" width="20" height="5"/><rect x="40" y="42" width="20" height="5"/>
+      <rect x="14" y="52" width="46" height="5"/><rect x="14" y="62" width="20" height="5"/><rect x="40" y="62" width="20" height="5"/></g>` },
+  { zh:'梅花易數', en:'PLUM BLOSSOM', hot:false,
+    desc:'觸機起卦、體用生剋，數起於心而應於物。',
+    svg:`<g class="glow-on-hover" stroke="${gold}" fill="none" stroke-width="1.2">
+      <circle cx="37" cy="24" r="9"/><circle cx="24" cy="34" r="9"/><circle cx="50" cy="34" r="9"/>
+      <circle cx="29" cy="48" r="9"/><circle cx="45" cy="48" r="9"/>
+      <circle cx="37" cy="37" r="3" fill="${goldB}" stroke="none"/></g>` },
+  { zh:'塔羅', en:'TAROT', hot:true,
+    desc:'七十八張韋特塔羅，凱爾特十字與三牌陣。',
+    svg:`<g class="glow-on-hover" stroke="${gold}" fill="none" stroke-width="1.2">
+      <rect x="12" y="16" width="28" height="44" rx="2" transform="rotate(-9 26 38)"/>
+      <rect x="30" y="12" width="30" height="48" rx="2" stroke="${goldB}"/>
+      <path d="M45 22l2.6 5.6 6 .6-4.5 4 1.3 5.8-5.4-3-5.4 3 1.3-5.8-4.5-4 6-.6z" fill="${gold}" stroke="none" fill-opacity=".9"/></g>` },
+  { zh:'奇門遁甲', en:'QI MEN DUN JIA', hot:false,
+    desc:'九宮飛盤、八門九星，古之帝王決策之學。',
+    svg:`<g class="glow-on-hover" stroke="${gold}" fill="none" stroke-width="1">
+      <rect x="12" y="12" width="50" height="50" transform="rotate(45 37 37)"/>
+      <rect x="21" y="21" width="32" height="32" transform="rotate(45 37 37)" stroke-opacity=".6"/>
+      <circle cx="37" cy="37" r="4" stroke="${goldB}"/>
+      <path d="M37 5v12M37 57v12M5 37h12M57 37h12" stroke-opacity=".7"/></g>` },
+  { zh:'西方占星', en:'ASTROLOGY', hot:false,
+    desc:'本命盤十大行星落宮，行運相位逐年推演。',
+    svg:`<g class="glow-on-hover" stroke="${gold}" fill="none" stroke-width="1">
+      <circle cx="37" cy="37" r="27"/><circle cx="37" cy="37" r="19" stroke-opacity=".5"/>
+      <path d="M37 10v8M37 56v8M10 37h8M56 37h8M18 18l6 6M56 56l-6-6M56 18l-6 6M18 56l6-6" stroke-opacity=".7"/>
+      <circle cx="46" cy="28" r="2.4" fill="${goldB}" stroke="none"/><circle cx="28" cy="44" r="1.7" fill="${gold}" stroke="none"/></g>` },
+  { zh:'周公解夢', en:'DREAM ORACLE', hot:false,
+    desc:'夢境關鍵詞入典查釋，古籍原文對照今解。',
+    svg:`<g class="glow-on-hover" stroke="${gold}" fill="none" stroke-width="1.2">
+      <path d="M52 44a21 21 0 1 1-14-36 17 17 0 1 0 14 36z" stroke="${goldB}"/>
+      <path d="M50 16l1.4 3.4 3.4 1.4-3.4 1.4-1.4 3.4-1.4-3.4-3.4-1.4 3.4-1.4z" fill="${gold}" stroke="none"/>
+      <circle cx="58" cy="32" r="1.4" fill="${gold}" stroke="none"/></g>` },
+];
+const grid = document.getElementById('cardgrid');
+cards.forEach(c => {
+  const el = document.createElement('article');
+  el.className = 'card';
+  el.innerHTML = `
+    ${c.hot ? '<span class="hot">熱門</span>' : ''}
+    <div class="emblem"><svg viewBox="0 0 74 74">${c.svg}</svg></div>
+    <h3>${c.zh}</h3><span class="card-en en">${c.en}</span>
+    <p>${c.desc}</p>
+    <div class="go"><span class="line"></span>立即排盤 BEGIN</div>`;
+  grid.appendChild(el);
+});
+</script>
+</body>
+</html>
