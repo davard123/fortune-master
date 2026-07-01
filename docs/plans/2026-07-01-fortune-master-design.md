@@ -27,7 +27,7 @@
 | 后端 | **Supabase**（Postgres + Auth + Edge Functions + Storage） |
 | 算法集成 | fork 项目**重写为 TS → Supabase Edge Functions**（Fortune Engine API） |
 | LLM 主力 | **Phase 0-1 试用**：[FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi)（自托管代理 + 16 个免费 LLM，月 ~17B tokens 免费）<br>**Phase 2+ 正式**：[DeepSeek](https://platform.deepseek.com)（中文命理解读最优解，¥1/M tokens 输入） |
-| MVP 语言 | 英文 + 简体中文 |
+| MVP 语言 | 英文 + 简体中文（所有可见 UI 都要双语，详见 §6.4）|
 | 社区功能 | 包含：解读分享墙 + 评论 + 点赞 |
 | 合规策略 | MVP：标准化免责声明 + Privacy Policy + ToS |
 | 品牌 | 中文"中西算命大全" / 海外英文"Fortune Master" |
@@ -319,18 +319,22 @@ fortune_master/
 │   │   ├── community/          # 社区（分享/评论/点赞）
 │   │   ├── paywall/            # 订阅/付费墙
 │   │   └── profile/            # 个人中心
-│   ├── l10n/                   # i18n 资源（en, zh-CN）
+│   ├── l10n/                   # i18n ARB 资源
+│   │   ├── app_en.arb          # 英文
+│   │   ├── app_zh.arb          # 简体中文
+│   │   └── app_localizations.dart  # 自动生成的 Dart 代码入口
 │   └── shared/                 # 通用 widgets
 ├── supabase/
 │   ├── functions/              # Edge Functions（Fortune Engine）
 │   ├── migrations/             # SQL migrations
 │   └── seed.sql                # 种子数据
 ├── assets/
-│   ├── i18n/
-│   ├── tarot/                  # 78 张韦特塔罗图片
+│   ├── i18n/                   # 翻译工具链资源（如 OpenCC）
+│   ├── tarot/                  # 78 张韦特塔罗图片（公版扫描）
 │   ├── bazi/                   # 八字天干地支图标
 │   └── images/
 ├── test/
+├── l10n.yaml                   # Flutter gen-l10n 配置
 └── pubspec.yaml
 ```
 
@@ -361,6 +365,179 @@ class PlatformUtils {
   }
 }
 ```
+
+### 6.4 国际化（i18n）实现
+
+**MVP 双语**：英文 + 简体中文（所有可见 UI 文案都要双语，**不是只做元数据**）。具体实现：
+
+#### 资源文件（ARB 格式）
+
+```json
+// lib/l10n/app_en.arb
+{
+  "@@locale": "en",
+  "appName": "Fortune Master",
+  "appTagline": "Ancient wisdom, modern insight",
+  "homeScreenTitle": "Choose Your Path",
+
+  "systemBazi": "Four Pillars of Destiny",
+  "systemBaziDesc": "Reveal your destiny through your birth moment",
+  "systemZiwei": "Zi Wei Dou Shu",
+  "systemZiweiDesc": "Discover the stars' secret guidance",
+  "systemIching": "I Ching · Liu Yao",
+  "systemIchingDesc": "Ask the ancient hexagrams a question",
+  "systemTarot": "Tarot Reading",
+  "systemTarotDesc": "Let the cards reveal what lies ahead",
+
+  "tierFree": "Free",
+  "tierBrief": "Brief Reading",
+  "tierDetailed": "Detailed Reading",
+  "tierPdf": "Full Report (PDF)",
+
+  "unlockByWatchingAd": "Watch a short ad to unlock",
+  "subscribeMonthly": "Monthly · $4.99",
+  "subscribeYearly": "Yearly · $39.99",
+
+  "disclaimer": "For entertainment purposes only. Not a substitute for professional advice.",
+  "i18nInfo": "Available in English and Simplified Chinese"
+}
+```
+
+```json
+// lib/l10n/app_zh.arb
+{
+  "@@locale": "zh",
+  "appName": "中西算命大全",
+  "appTagline": "古今天命，一指之间",
+  "homeScreenTitle": "选择你的占法",
+
+  "systemBazi": "八字命理（四柱）",
+  "systemBaziDesc": "通过出生时刻推演你的命运",
+  "systemZiwei": "紫微斗数",
+  "systemZiweiDesc": "紫微十四主星照亮你的人生十二宫",
+  "systemIching": "周易六爻",
+  "systemIchingDesc": "向古老的卦象提出你的问题",
+  "systemTarot": "塔罗占卜",
+  "systemTarotDesc": "让韦特牌揭示前路的方向",
+
+  "tierFree": "免费",
+  "tierBrief": "简要解读",
+  "tierDetailed": "详细解读",
+  "tierPdf": "完整报告（PDF）",
+
+  "unlockByWatchingAd": "观看短广告解锁",
+  "subscribeMonthly": "月度订阅 · ¥35",
+  "subscribeYearly": "年度订阅 · ¥279",
+
+  "disclaimer": "本应用仅供娱乐参考，不构成人生决策建议。",
+  "i18nInfo": "支持英文与简体中文"
+}
+```
+
+#### `l10n.yaml` 配置
+
+```yaml
+# l10n.yaml
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppL10n
+output-dir: lib/l10n/generated
+nullable-getter: false
+```
+
+#### 使用示例（Dart）
+
+```dart
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+// 在 Widget 中
+final l10n = AppL10n.of(context);
+Text(l10n.systemBazi);            // "Four Pillars of Destiny" 或 "八字命理（四柱）"
+Text(l10n.disclaimer);             // 双语免责
+
+// 切换语言（按用户偏好 / 系统语言）
+MaterialApp(
+  locale: user.preferredLocale ?? Locale(ui_language_default),  // 'en' | 'zh'
+  supportedLocales: AppL10n.supportedLocales,
+  localizationsDelegates: AppL10n.localizationsDelegates,
+);
+```
+
+#### Locale 决定流程
+
+```
+┌──────────────────────────────────────────┐
+│  用户首次打开应用                          │
+└──────────────┬───────────────────────────┘
+               │
+        ┌──────▼─────────┐
+        │ profiles.locale │
+        │ 已有值吗？       │
+        └──────┬─────────┘
+               │
+       ┌───────┴───────┐
+       │YES            │NO
+       ▼               ▼
+使用该 locale   ┌──────────────┐
+                │ 浏览器/系统   │
+                │ 语言检测      │
+                └──────┬───────┘
+                       │
+                ┌──────▼────────┐
+                │ 匹配 zh-* → zh │
+                │ 匹配 en-* → en │
+                │ 其他 → en 默认 │
+                └──────┬────────┘
+                       ▼
+              保存到 profiles.locale
+              （下次启动直接用）
+```
+
+#### 关键术语映射表
+
+> 由所有术数模块共享，**不要在业务代码里硬编码**
+
+| 中文 | 英文 |
+|------|------|
+| 八字 | Four Pillars of Destiny / Bazi |
+| 紫微斗数 | Zi Wei Dou Shu |
+| 周易六爻 | I Ching / Liu Yao |
+| 梅花易数 | Plum Blossom Numerology |
+| 奇门遁甲 | Qi Men Dun Jia |
+| 大六壬 | Da Liu Ren |
+| 太乙神数 | Tai Yi Shen Shu |
+| 西占星 | Western Astrology |
+| 周公解梦 | Zhou Gong Dream Interpretation |
+| 五行 | Five Elements (Wuxing) |
+| 天干 | Heavenly Stems (Tiangan) |
+| 地支 | Earthly Branches (Dizhi) |
+| 流年 | Annual Luck (Liunian) |
+| 大运 | Decade Luck (Dayun) |
+
+#### LLM Prompt 也走 locale 变量
+
+```typescript
+// Edge Function 解读端点已按 locale 变量生成 prompt（见 §5.3）
+const prompt = `请用${locale === 'zh-CN' ? '简体中文' : 'English'}给出 200 字解读...`;
+```
+
+#### i18n 工具链
+
+| 工具 | 用途 |
+|------|------|
+| `flutter_localizations` | Flutter 官方 SDK 内建 |
+| `intl` (pub.dev) | 日期/数字/复数本地化 |
+| `flutter_gen/gen_l10n` | 自动从 ARB 生成 Dart 代码 |
+| OpenCC (Dart 包) | **可选**：zh-CN ↔ zh-HK 转换（如果目标市场含香港） |
+| Lokalise / Crowdin | 可选，团队化翻译平台（MVP 阶段不需要） |
+
+#### 不需要做的事
+
+- ❌ 不做 3 套独立翻译（zh-CN、zh-TW、en）→ 等需要繁体市场时用 OpenCC 转
+- ❌ 不做 RTL 语言（阿语等）→ v2 才考虑
+- ❌ 不做 `Locale('en', 'US')` vs `Locale('en', 'GB')` 细分 → MVP 单 en 即可
+- ❌ 不用 Lokalise 等付费翻译平台 → 双语规模下 flutter 本地工具链够用
 
 ---
 

@@ -141,7 +141,7 @@
 | 8 | 算法集成 | **API 化重写**为 Supabase Edge Functions |
 | 9 | LLM 主力 | **Phase 1 试用**：[FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi)（16 个免费 LLM 聚合）<br>**Phase 2+ 正式**：[DeepSeek](https://platform.deepseek.com)（中文命理 SOTA） |
 | 10 | MVP 范围 | **Medium 8 种术数**首发 |
-| 11 | MVP 语言 | 英文 + 简体中文 |
+| 11 | MVP 语言 | 英文 + 简体中文（所有可见 UI 都要双语，详见 §11.3）|
 | 12 | 社区功能 | **包含**：解读分享墙 + 评论 + 点赞 |
 | 13 | 合规策略 | MVP：标准化免责声明 + Privacy Policy + ToS |
 | 14 | 品牌 | 中文："中西算命大全" / 海外英文：**Fortune Master** |
@@ -541,18 +541,22 @@ fortune_master/
 │   │   ├── community/          # 社区
 │   │   ├── paywall/            # 订阅/付费墙
 │   │   └── profile/            # 个人中心
-│   ├── l10n/                   # i18n（en, zh-CN）
+│   ├── l10n/                   # i18n 资源（ARB）
+│   │   ├── app_en.arb          # 英文
+│   │   ├── app_zh.arb          # 简体中文
+│   │   └── generated/          # gen-l10n 自动生成
 │   └── shared/                 # 通用 widgets
 ├── supabase/
 │   ├── functions/              # Edge Functions
 │   ├── migrations/             # SQL migrations
 │   └── seed.sql
 ├── assets/
-│   ├── i18n/
-│   ├── tarot/                  # 78 张韦特塔罗
+│   ├── i18n/                   # i18n 工具链资源
+│   ├── tarot/                  # 78 张韦特塔罗（公版）
 │   ├── bazi/                   # 八字天干地支图标
 │   └── images/
 ├── test/
+├── l10n.yaml                   # Flutter gen-l10n 配置
 └── pubspec.yaml
 ```
 
@@ -573,6 +577,28 @@ dependencies:
   pdf: ^3.11.1                      # PDF 生成
   printing: ^5.13.1                 # PDF 打印/分享
 ```
+
+### 11.3 MVP 双语策略（英文 + 简体中文）
+
+> **MVP 语言：英文 + 简体中文，**所有可见 UI 都要双语**，不是只做 App Store 元数据。**
+
+- 资源文件：`lib/l10n/app_en.arb` + `lib/l10n/app_zh.arb`（Flutter 标准 ARB 格式，由 `flutter gen-l10n` 自动生成 Dart）
+- **关键术语双语对照**：
+  - 八字 → Four Pillars of Destiny / Bazi
+  - 紫微斗数 → Zi Wei Dou Shu
+  - 周易六爻 → I Ching / Liu Yao
+  - 梅花易数 → Plum Blossom Numerology
+  - 奇门遁甲 → Qi Men Dun Jia
+  - 大六壬 → Da Liu Ren
+  - 太乙神数 → Tai Yi Shen Shu
+  - 西占星 → Western Astrology
+  - 周公解梦 → Zhou Gong Dream Interpretation
+- **文案风格**：英文友好解释型（小白能懂），中文保留原生术语
+- **locale 决策**：浏览器/系统语言 → 写入 `profiles.locale` → 启动时直接读取
+- **繁体**：暂不单独翻译，需要时用 OpenCC 把简体自动转繁体（zh-HK），不做独立翻译
+- **LLM Prompt**：`Edge Function /v1/interpret` 已按 `locale` 变量动态生成中英双语 prompt（见 §5.3）
+
+**详见**：`docs/plans/2026-07-01-fortune-master-design.md §6.4`（含完整 ARB 示例、l10n.yaml 配置、Dart 用法）
 
 ---
 

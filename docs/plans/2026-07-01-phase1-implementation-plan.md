@@ -6,6 +6,29 @@
 
 ---
 
+## 0a. 语言策略（澄清结论，与 design.md / handoff.md 一致）
+
+- **MVP 双语**：英文 + 简体中文，**所有可见 UI 都要双语**，不只是 App Store 元数据
+- **默认 locale**：根据用户浏览器 / 系统语言自动选择；无设置时 fallback 到 `en`
+- **术语表**（关键术数官方英文译名）：
+  | 中文 | 英文官方名 |
+  |------|------------|
+  | 八字 | Four Pillars of Destiny / Bazi |
+  | 紫微斗数 | Zi Wei Dou Shu |
+  | 周易六爻 | I Ching / Liu Yao |
+  | 梅花易数 | Plum Blossom Numerology |
+  | 奇门遁甲 | Qi Men Dun Jia |
+  | 大六壬 | Da Liu Ren |
+  | 太乙神数 | Tai Yi Shen Shu |
+  | 西占星 | Western Astrology |
+  | 周公解梦 | Zhou Gong Dream Interpretation |
+- **语言切换模型**：用户偏好存 `profiles.locale`（已设计在 §4 schema 中）；LLM 解读 prompt 用此 locale 变量动态生成
+- **繁体**：暂不单独翻译，需要时用 OpenCC 把简体自动转换（不做独立翻译）
+- **资源文件**：用 Flutter 标准 ARB 格式（`lib/l10n/app_en.arb` + `lib/l10n/app_zh.arb`），CI 加 `flutter gen-l10n` 自动同步
+- **不要**：纯中文为主 + 只翻译关键词（这是早期草稿的错误，已在 2026-07-01 修订为双语）
+
+---
+
 ## 0. 五条硬约束（执行前必须记住，贯穿全程）
 
 这五条来自方案评审和实测验证，是已经拍板的决定，不是待讨论选项：
@@ -79,7 +102,13 @@
 ## 7. Week 8：打磨上线
 
 - UI 打磨
-- i18n：按 handoff.md §5 澄清结论，内容主体是纯中文，英文只做 App Store 元数据/关键词；如果目标市场包含香港，加一步简体转繁体（用 OpenCC 之类的库自动转换，不是重新翻译）
+- i18n：**英文 + 简体中文双 MVP**（与 design.md 决策表 §1 第 11 项、handoff.md §4.1 第 11 项一致）。执行清单：
+  - 整站所有 UI 文案都要双语（不只是元数据）
+  - 术语表（如八字 → "Four Pillars of Destiny"、紫微 → "Zi Wei Dou Shu"、奇门 → "Qi Men Dun Jia"、塔罗 → "Tarot"）要保持官方，必要时保留中文括注
+  - 文案风格：英文友好解释型（小白也能懂），中文保留原生术语（不刻意英化）
+  - 出生信息表单：双语标签 + 日期组件本地化（公历/农历切换器放在中文版主显、英文版默认隐藏）
+  - 如果目标市场包含香港，加一步 OpenCC 简体转繁体的自动转换（zh-HK），不是重新翻译（不做繁体+简体两套独立翻译）
+  - 关键参考资源：建 `lib/l10n/app_en.arb` 和 `lib/l10n/app_zh.arb`（ARB 格式由 Flutter `intl_translation` 工具链支持），CI 加 `gen-l10n` 自动生成 Dart 代码
 - Privacy/ToS：落实第 0 节第 4 条（出生信息用完即弃），并覆盖社区 UGC 的举报机制（哪怕只是一个"举报"按钮 + 人工审核队列），不要上线一个完全没有内容审核路径的公开分享墙
 - Cloudflare Pages 部署
 
