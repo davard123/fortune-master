@@ -181,48 +181,48 @@
 
 ## 5. 已 Fork 的开源项目清单
 
-> 所有 fork 已在 `davard123` 账号下，共 **14 个仓库**（10/14 通过本会话完成，4 个待补）。
+> 所有 fork 已在 `davard123` 账号下，共 **15 个仓库**（11/15 通过本会话完成，4 个待补）。License 列已于 2026-07-01 通过 GitHub API 逐一核实（见 §5.9），**不再是未验证假设**。
 
 ### 5.1 八字（命理核心）
-| 仓库 | 原 star | fork URL |
-|---|---|---|
-| china-testing/bazi | 1,386 | https://github.com/davard123/bazi ✅ |
-| axbug/8Char-Uni-App | 277 | https://github.com/davard123/8Char-Uni-App ✅ |
-| hkargc/paipan | 164 | https://github.com/davard123/paipan ✅ |
-| masterai-top/Bazi-Ziwei-Qimen-Dunjia-Divination-System-Source-Code | 53 | https://github.com/davard123/Bazi-Ziwei-Qimen-Dunjia-Divination-System-Source-Code ✅ |
+| 仓库 | 原 star | fork URL | License（已核实） |
+|---|---|---|---|
+| china-testing/bazi | 1,386 | https://github.com/davard123/bazi ✅ | ⚠️ 无 LICENSE 文件、README 未声明 |
+| axbug/8Char-Uni-App | 277 | https://github.com/davard123/8Char-Uni-App ✅ | GPL-3.0（copyleft，谨慎使用） |
+| hkargc/paipan | 164 | https://github.com/davard123/paipan ✅ | WTFPL（宽松） |
+| masterai-top/Bazi-Ziwei-Qimen-Dunjia-Divination-System-Source-Code | 53 | https://github.com/davard123/Bazi-Ziwei-Qimen-Dunjia-Divination-System-Source-Code ✅ | ⛔ 自定义"MIT with Commercial Restrictions"，**明确禁止商用** |
 
 ### 5.2 紫微斗数
-| 仓库 | 原 star | fork URL |
-|---|---|---|
-| hhszzzz/taibu | 291 | https://github.com/davard123/taibu ✅ |
-| Brhiza/mingyu | 172 | https://github.com/davard123/mingyu ✅ |
+| 仓库 | 原 star | fork URL | License（已核实） |
+|---|---|---|---|
+| hhszzzz/taibu | 291 | https://github.com/davard123/taibu ✅ | 仓库根目录 **AGPL-3.0-only**；仅 `packages/core`（即 npm 包 `taibu-core`）单独声明 **MIT** |
+| Brhiza/mingyu | 172 | https://github.com/davard123/mingyu ✅ | ⚠️ 无 LICENSE 文件、README 未声明 |
 
 ### 5.3 周易 / 易经
-| 仓库 | 原 star | fork URL |
-|---|---|---|
-| kentang2017/ichingshifa | 263 | https://github.com/davard123/ichingshifa ✅ |
-| chengjun/iching | 125 | https://github.com/davard123/iching ✅ |
-| xinliulab/Future-Telling-By-I-Ching | 102 | https://github.com/davard123/Future-Telling-By-I-Ching ✅ |
+| 仓库 | 原 star | fork URL | License（已核实） |
+|---|---|---|---|
+| kentang2017/ichingshifa | 263 | https://github.com/davard123/ichingshifa ✅ | MIT ✅ |
+| chengjun/iching | 125 | https://github.com/davard123/iching ✅ | MIT ✅ |
+| xinliulab/Future-Telling-By-I-Ching | 102 | https://github.com/davard123/Future-Telling-By-I-Ching ✅ | ⚠️ 无 LICENSE 文件、README 未声明 |
 
 ### 5.4 塔罗
-| 仓库 | 原 star | fork URL |
-|---|---|---|
-| ekelen/tarot-api | 391 | https://github.com/davard123/tarot-api ✅ |
-| dreamhunter2333/chatgpt-tarot-divination | 823 | https://github.com/davard123/chatgpt-tarot-divination ✅ |
-| uxiaohan/Tarot-Web | 106 | https://github.com/davard123/Tarot-Web ✅ |
+| 仓库 | 原 star | fork URL | License（已核实） |
+|---|---|---|---|
+| ekelen/tarot-api | 391 | https://github.com/davard123/tarot-api ✅ | ⚠️ 无 LICENSE 文件、README 未声明 |
+| dreamhunter2333/chatgpt-tarot-divination | 823 | https://github.com/davard123/chatgpt-tarot-divination ✅ | MIT（仅 README 声明，无独立 LICENSE 文件） |
+| uxiaohan/Tarot-Web | 106 | https://github.com/davard123/Tarot-Web ✅ | ⚠️ 无 LICENSE 文件、README 未声明 |
 
 ### 5.5 奇门遁甲 / 六壬 / 太乙神数
-| 仓库 | 原 star | fork URL |
-|---|---|---|
-| hhszzzz/taibu（已含） | 291 | （见上） ✅ |
-| Brhiza/mingyu（已含） | 172 | （见上） ✅ |
-| H1d3rOne/xuan-deduct | 23 | https://github.com/davard123/xuan-deduct ✅ |
+| 仓库 | 原 star | fork URL | License（已核实） |
+|---|---|---|---|
+| hhszzzz/taibu（已含） | 291 | （见上） ✅ | 见 5.2 |
+| Brhiza/mingyu（已含） | 172 | （见上） ✅ | 见 5.2 |
+| H1d3rOne/xuan-deduct | 23 | https://github.com/davard123/xuan-deduct ✅ | MIT ✅ |
 
 ### 5.6 其他
-| 仓库 | 原 star | fork URL |
-|---|---|---|
-| NodleCode/Nodle-I-Ching | 276 | https://github.com/davard123/Nodle-I-Ching ✅ |
-| gclinux/etaoism | 82 | https://github.com/davard123/etaoism ✅ |
+| 仓库 | 原 star | fork URL | License（已核实） |
+|---|---|---|---|
+| NodleCode/Nodle-I-Ching | 276 | https://github.com/davard123/Nodle-I-Ching ✅ | GPL-3.0（copyleft，谨慎使用） |
+| gclinux/etaoism | 82 | https://github.com/davard123/etaoism ✅ | ⚠️ 无 LICENSE 文件、README 未声明 |
 
 ### 5.7 待补 fork（Week 1 收尾时执行）
 ```bash
@@ -230,14 +230,22 @@ gh repo fork lawreka/ascii-tarot --clone=false
 gh repo fork MinatoAquaCrews/nonebot_plugin_tarot --clone=false
 gh repo fork jeremytarling/python-tarot --clone=false
 gh repo fork zhaoolee/cyber-fortune-telling --clone=false
-gh repo fork g-battaglia/Astrologer-API --clone=false
 ```
 
-### 5.8 关键发现
+> `g-battaglia/Astrologer-API` 已从待补清单移除：§10.2.1 实测确认 `taibu-core/astrology` 可直接覆盖西占星需求，不再需要这个 fork。
 
-- `hhszzzz/taibu`、`Brhiza/mingyu`、`dreamhunter2333` 是「**一站式排盘工具**」，覆盖八字+紫微+六爻+梅花+奇门+大六壬+小六壬+塔罗+太乙神数——这些会作为**核心后端依赖**优先复用
-- `taibu` 和 `chatgpt-tarot-divination` 是 **TypeScript 实现**，可直接 import 到 Edge Function；Python 项目（如 `china-testing/bazi`、`kentang2017/ichingshifa`）需要重写
-- 所有项目 License 均为 MIT/Apache，**重写为 TS 商业化无版权风险**
+### 5.8 关键发现（已修订，2026-07-01 实测）
+
+- `hhszzzz/taibu` 的核心算法已拆成独立发布的 npm 包 `taibu-core`（MIT，v3.4.0），覆盖 bazi/ziwei/qimen/taiyi/daliuren/liuyao/meihua/tarot/astrology/xiaoliuren/almanac —— **实测确认可直接 `npm install` 调用，覆盖 Medium-8 里除周公解梦外的全部术数**，详见 §10.2。
+- ~~"所有项目 License 均为 MIT/Apache，重写无版权风险"~~ **已证伪**：15 个 fork 里只有 5 个是宽松许可（MIT ×4、WTFPL ×1），其余为 copyleft（GPL-3.0 ×2）、明确禁止商用（masterai-top 自定义许可 ×1）、或完全无声明（7 个仓库只有 README 无 LICENSE 文件）。详见 §5.9。
+- 因此原"14 个 fork 逐一读源码重写"的策略已废弃，改为"以 `taibu-core` 为主力 SDK、其余 fork 仅作理论/交叉验证参考、不直接复制代码"。
+
+### 5.9 License 核查结论（2026-07-01，GitHub API 实测，非假设）
+
+原方案多处断言"全部 MIT/Apache-2.0，重写无版权风险"，实测结果并非如此（明细见上方各表）。**对本方案实际影响很小**，因为核心算法已改用 `taibu-core`（npm 包，MIT，独立于 `taibu` 仓库根目录的 AGPL-3.0）——**不要从 `taibu` 仓库根目录（`src/`、`supabase/`、`public/` 等）复制任何代码，只用发布到 npm 的 `taibu-core` 包**，就不会触碰 AGPL 条款。其余 fork 定位为"备用/交叉验证参考"：
+- 无 License 声明的仓库——不要直接复制代码或数据，只能参考实现思路。
+- `masterai-top/...`——明确禁止商用，需要从"可复用清单"里剔除，只能当纯理论参考读。
+- GPL-3.0 的两个（8Char-Uni-App、Nodle-I-Ching）——copyleft，不打算开源自己代码的话不要直接复制。
 
 ---
 
@@ -475,6 +483,12 @@ xiaoliuren, ziwei, ziwei-flying-star, ziwei-horoscope, tarot
 **唯一需要在真实环境补测的风险点**：`taibu-core` 的奇门算法内部通过临时修改全局 `process.env.TZ` 来处理时区转换（配合互斥锁防并发干扰）。本地 Node 验证是通的，但 Supabase Edge Functions 跑的是 **Deno** 运行时，`process.env.TZ` 对 `Date` 计算是否同样生效需要在真正部署后（或至少 `deno run`）再测一次，不能假设 Node/Deno 行为一致。
 
 **修订后的策略**：Week 3-7 排盘 Edge Function 开发，优先 `npm install taibu-core` 按 domain 逐个接线；`tarot-api`、`chatgpt-tarot-divination`、`Nodle-I-Ching` 等其余 fork 降级为备用/交叉验证参考，不再是必须移植对象；`china-testing/bazi`、`kentang2017/ichingshifa` 标记为弃用。
+
+### 10.2.1 西占星验证 + 两个仍未覆盖的素材缺口（2026-07-01 实测）
+
+- **西占星**：`taibu-core/astrology` 的 `calculateAstrology({ birthYear, birthMonth, birthDay, birthHour, birthMinute, longitude, latitude })` 实测调用成功，返回本命盘（十大行星、Placidus 宫位制、五种相位）+ 行运盘 + 相位列表——**`g-battaglia/Astrologer-API` 这个尚未完成的 fork 大概率不再需要**，已从 §5.7 待补清单移除。
+- **塔罗牌面素材缺口**：`ekelen/tarot-api` 只有卡牌含义 JSON（`card_data.json`），`uxiaohan/Tarot-Web` 无牌面图片资源——两个 fork 都不提供 78 张牌的图片素材。韦特-史密斯（1909）原版画作在美国已进入公有领域，可用 Wikimedia Commons / sacred-texts.com 公版扫描图，不依赖任何一个 fork。
+- **周公解梦内容缺口**：15 个 fork 里没有一个覆盖周公解梦原文数据，与原方案"自建"定位一致——需单独寻找《周公解梦》公版文本数据源，并甄别"整理版"是否有现代整理者版权。
 
 ### 10.3 Prompt 设计模板
 
