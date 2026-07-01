@@ -26,7 +26,7 @@
 | 部署 | Web 用 **Cloudflare Pages + Workers**，App 走 Apple/Google 商店 |
 | 后端 | **Supabase**（Postgres + Auth + Edge Functions + Storage） |
 | 算法集成 | fork 项目**重写为 TS → Supabase Edge Functions**（Fortune Engine API） |
-| LLM 主力 | **DeepSeek**（中文命理解读最优解，¥1/M tokens 输入） |
+| LLM 主力 | **Phase 0-1 试用**：[FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi)（自托管代理 + 16 个免费 LLM，月 ~17B tokens 免费）<br>**Phase 2+ 正式**：[DeepSeek](https://platform.deepseek.com)（中文命理解读最优解，¥1/M tokens 输入） |
 | MVP 语言 | 英文 + 简体中文 |
 | 社区功能 | 包含：解读分享墙 + 评论 + 点赞 |
 | 合规策略 | MVP：标准化免责声明 + Privacy Policy + ToS |
@@ -512,7 +512,7 @@ davard123/
 
 ---
 
-## 13. 附录：剩余 fork 操作（待执行）
+## 13. 附录 A：剩余 fork 操作（待执行）
 
 ```bash
 gh repo fork lawreka/ascii-tarot --clone=false
@@ -526,6 +526,185 @@ gh repo fork g-battaglia/Astrologer-API --clone=false
 
 ---
 
-**文档版本**：v1.0
+## 14. 附录 B：试用阶段 LLM 方案 · FreeLLMAPI 集成
+
+### 14.1 选型动机
+
+试用阶段（Phase 0-1，约 0-8 周）直接购买 DeepSeek 等付费 API 存在以下问题：
+- 单次调试成本累积
+- 试用用户少、付费转化未验证、ROI 不确定
+- 多模型对比（A/B Test）需求——付费 API 多模型切换成本高
+
+**FreeLLMAPI**（[tashfeenahmed/freellmapi](https://github.com/tashfeenahmed/freellmapi)，⭐14.5k，MIT，2026-06 最新 v0.4.1）提供 OpenAI 兼容代理，将 16 个 LLM provider 的免费层叠合在一起，月 ~17 亿 tokens 免费额度。完美匹配试用阶段需求。
+
+### 14.2 支持的 16+ 模型
+
+| Provider | 代表模型 | 适用场景 |
+|---|---|---|
+| Google Gemini 2.5 Flash | 多模态输入、视觉 | 面相/手相识别 |
+| Groq Llama 3.3 70B | 高速推理 | 快速解读 |
+| Cerebras Qwen3 235B | 超快推理 | 实时卦象解读 |
+| Mistral Large 3 | 欧洲语言 | 英语深度解读 |
+| OpenRouter (21 个免费模型) | 多模型路由 | A/B Test |
+| GitHub Models (GPT-4.1, GPT-4o) | 高质量通用 | 兜底主力 |
+| Cloudflare Kimi K2 / GLM-4.7 | 中文优化 | 中文命理首选 |
+| Z.ai (Zhipu) GLM-4.5 | 中文 SOTA | 深度中文解读 |
+| HuggingFace Router (DeepSeek V4, Kimi K2.6) | 多模型路由 | 弹性补充 |
+| Ollama Cloud | 多模型 | 离线/边缘场景 |
+| Pollinations / LLM7 / Kilo / OVH | 匿名免费 | 备用兜底 |
+
+### 14.3 集成架构（试用阶段）
+
+```
+Flutter Client
+   ↓ HTTPS + JWT
+Supabase Auth + Postgres
+   ↓
+Supabase Edge Functions (Fortune Engine)
+   ├─ /v1/chart/*    (排盘算法 - 纯计算)
+   └─ /v1/interpret  (解读 - 调用 LLM)
+        ↓
+FreeLLMAPI 代理层（自托管 docker）
+   ├─ 16 个 provider 自动负载均衡
+   ├─ 故障转移 (429/5xx → fallback chain)
+   └─ 统一 API key (freellmapi-xxx)
+        ↓
+16 个 LLM provider 免费层
+```
+
+### 14.4 部署步骤
+
+#### 步骤 1：本地/服务器部署 FreeLLMAPI
+
+```bash
+# 推荐方案：Docker 部署到自己 VPS 或本地
+docker compose up -d
+# 默认端口 3001，默认绑定 127.0.0.1
+
+# 或者一键安装
+curl -fsSL https://freellmapi.co/install.sh | bash
+```
+
+⚠️ **重要**：README 明确警告"不要暴露到公网"——所以 FreeLLMAPI 只能部署在你的私有网络里（本地开发机或个人 VPS），**不能直接给客户端调用**。Supabase Edge Functions 在你的私有网络里调用它即可。
+
+#### 步骤 2：在 FreeLLMAPI 仪表盘添加 API Keys
+
+访问 `http://localhost:3001`，注册账号，进入 **Keys** 页面，至少添加：
+- **Google AI Studio Key**（Gemini 免费）→ https://aistudio.google.com/apikey
+- **GitHub Token**（GitHub Models 免费）→ https://github.com/settings/tokens
+- **Groq API Key**（Llama 高速）→ https://console.groq.com/keys
+- **OpenRouter Free Key**（21 模型聚合）→ https://openrouter.ai/keys
+- **Cloudflare Account ID + Token**（CF AI 免费）→ https://dash.cloudflare.com/profile/api-tokens
+
+#### 步骤 3：获取统一 API Key
+
+FreeLLMAPI 生成 `freellmapi-xxxx` 格式的统一 key，用于客户端访问。
+
+#### 步骤 4：Supabase Edge Function 集成
+
+```typescript
+// supabase/functions/v1/interpret/index.ts
+import OpenAI from 'openai';
+
+// 指向你自托管的 FreeLLMAPI
+const freellmapi = new OpenAI({
+  apiKey: Deno.env.get('FREELLMAPI_KEY'), // freellmapi-xxx
+  baseURL: Deno.env.get('FREELLMAPI_URL'), // http://freellmapi.internal:3001/v1
+});
+
+export async function interpret(
+  system: string,
+  chartData: object,
+  tier: 'brief' | 'detailed' | 'pdf',
+  locale: 'en' | 'zh-CN'
+) {
+  // 模型路由策略（按语言 + 复杂度选择）
+  const model = pickModel(system, tier, locale);
+
+  const prompt = buildPrompt(system, chartData, tier, locale);
+
+  const completion = await freellmapi.chat.completions.create({
+    model,
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.8,
+    max_tokens: tier === 'pdf' ? 3000 : tier === 'detailed' ? 1500 : 500,
+  });
+
+  return completion.choices[0].message.content;
+}
+
+function pickModel(system: string, tier: string, locale: string) {
+  // 中文命理 → GLM-4.5 / Kimi K2 / DeepSeek V4
+  if (locale === 'zh-CN') {
+    if (tier === 'brief') return 'zhipu/glm-4.5';        // 快速且够用
+    if (tier === 'detailed') return 'cloudflare/kimi-k2'; // 长文本
+    return 'huggingface/deepseek-v4';                     // PDF 深度
+  }
+  // 英文 → GPT-4o / Llama 3.3
+  if (tier === 'brief') return 'github/gpt-4o-mini';
+  if (tier === 'detailed') return 'github/gpt-4.1';
+  return 'groq/llama-3.3-70b';
+}
+```
+
+### 14.5 模型路由策略
+
+| Tier | 语言 | 推荐模型 | 备注 |
+|---|---|---|---|
+| Brief (Tier 1) | zh-CN | zhipu/glm-4.5 | 快速、低成本、中文佳 |
+| Brief | en | github/gpt-4o-mini | 英文快、便宜 |
+| Detailed (Tier 2) | zh-CN | cloudflare/kimi-k2 | 长文本 SOTA |
+| Detailed | en | github/gpt-4.1 | 质量稳定 |
+| PDF | zh-CN | huggingface/deepseek-v4 | 深度推理 |
+| PDF | en | groq/llama-3.3-70b | 高速长文本 |
+
+### 14.6 已知限制与对策
+
+| 限制 | 影响 | 对策 |
+|---|---|---|
+| **仅供个人实验** | 不可商用 | Phase 2 切到 DeepSeek 付费 API；Phase 1 免责声明中明确"测试阶段" |
+| **无 SLA** | 延迟波动 | 客户端显示 fallback 状态；超时降级到模板解读 |
+| **智力随时间下降**（高峰期降级小模型） | 解读质量波动 | A/B Test 不同 provider；记录用户反馈用于选优 |
+| **顶级模型无免费层**（无 GPT-5 / Opus） | 复杂推理受限 | PDF 报告分级：标准版用免费模型，Premium 版用 DeepSeek 付费 |
+| **ToS 风险**（Gemini、Cohere） | 商用违规风险 | Phase 2 切换前审计所有 provider ToS；规避 Cohere、谨慎 Gemini |
+| **本地部署** | 增加运维负担 | 用 Docker；Cloudflare Tunnel 暴露（不直连公网） |
+| **不能直连公网** | 客户端不能直接调 | 必须经 Supabase Edge Function 中转（已纳入架构） |
+
+### 14.7 切换到 DeepSeek 的迁移路径（Phase 2）
+
+Phase 2 准备正式上线时，只需修改 Supabase Edge Function 中的 `pickModel()` 和 base URL：
+
+```typescript
+// Phase 2 切换后
+const deepseek = new OpenAI({
+  apiKey: Deno.env.get('DEEPSEEK_API_KEY'),
+  baseURL: 'https://api.deepseek.com/v1',
+});
+
+function pickModel(system: string, tier: string, locale: string) {
+  return 'deepseek-chat'; // 统一 DeepSeek V3
+}
+```
+
+**业务代码完全不需要改动**——这就是 OpenAI 兼容的好处。
+
+### 14.8 月度成本对比
+
+| 阶段 | LLM 月成本 (假设 1 万次深度解读) | 备注 |
+|---|---|---|
+| Phase 1（试用） | **$0** | FreeLLMAPI 免费层 |
+| Phase 2（正式） | **$20 - $50** | DeepSeek 付费 |
+| Phase 3（规模化） | **$200 - $500** | DeepSeek + GPT-4o 备份 |
+
+### 14.9 引用
+
+- GitHub: https://github.com/tashfeenahmed/freellmapi
+- README License: MIT
+- 项目状态：v0.4.1, 2026-06-20, ⭐14.5k, 活跃维护
+- 推荐原因：OpenAI 兼容、16 provider 聚合、智能故障转移、A/B Test 友好
+
+---
+
+**文档版本**：v1.1（含 FreeLLMAPI 试用方案）
 **下次评审**：Phase 1 完成后（Week 8 末）
 **联系人**：davard123
