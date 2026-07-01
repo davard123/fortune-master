@@ -1,0 +1,82 @@
+{
+  "@@locale": "en",
+
+  "appName": "Fortune Master",
+  "appTagline": "Ancient wisdom, modern insight",
+
+  "homeScreenTitle": "Choose Your Path",
+  "homeScreenSubtitle": "Pick a divination method to begin",
+
+  "systemBazi": "Four Pillars of Destiny",
+  "@systemBazi": { "description": "八字命理" },
+  "systemBaziDesc": "Reveal your destiny through your birth moment",
+
+  "systemZiwei": "Zi Wei Dou Shu",
+  "systemZiweiDesc": "Discover the stars' secret guidance",
+
+  "systemIching": "I Ching · Liu Yao",
+  "systemIchingDesc": "Ask the ancient hexagrams a question",
+
+  "systemMeihua": "Plum Blossom Numerology",
+  "systemMeihuaDesc": "Quick divination through signs and numbers",
+
+  "systemTarot": "Tarot Reading",
+  "systemTarotDesc": "Let the cards reveal what lies ahead",
+
+  "systemQimen": "Qi Men Dun Jia",
+  "systemQimenDesc": "Strategic cosmic timing",
+
+  "systemHoroscope": "Western Astrology",
+  "systemHoroscopeDesc": "Your stars at the moment of birth",
+
+  "systemDream": "Dream Interpretation",
+  "systemDreamDesc": "Decode the meaning of your dreams",
+
+  "tierFree": "Free",
+  "tierBrief": "Brief Reading",
+  "tierDetailed": "Detailed Reading",
+  "tierPdf": "Full Report",
+
+  "actionStartReading": "Begin Reading",
+  "actionWatchAd": "Watch Ad to Unlock",
+  "actionSubscribe": "Subscribe",
+  "actionSignIn": "Sign In",
+  "actionSignOut": "Sign Out",
+
+  "formBirthDate": "Birth Date",
+  "formBirthTime": "Birth Time",
+  "formGender": "Gender",
+  "formGenderMale": "Male",
+  "formGenderFemale": "Female",
+  "formGenderOther": "Other",
+  "formQuestion": "Your Question",
+  "formQuestionHint": "What is on your heart today?",
+
+  "subscribeMonthly": "Monthly · $4.99",
+  "subscribeYearly": "Yearly · $39.99 (Save 33%)",
+
+  "disclaimer": "For entertainment purposes only. Not a substitute for professional advice.",
+  "i18nInfo": "Available in English and Simplified Chinese",
+
+  "adLoading": "Loading advertisement…",
+  "adComplete": "Thank you! Your reading is unlocked.",
+  "adFailed": "Could not load ad. Please try again.",
+
+  "loading": "Loading…",
+  "errorNetwork": "Network error. Please check your connection.",
+  "errorLoginRequired": "Please sign in to view this reading.",
+  "errorServer": "Server error. Please try again later.",
+
+  "menuHome": "Home",
+  "menuCommunity": "Community",
+  "menuProfile": "Profile",
+  "menuSettings": "Settings",
+
+  "settingsLanguage": "Language",
+  "settingsLanguageEN": "English",
+  "settingsLanguageZH": "简体中文",
+  "settingsTheme": "Theme",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsThemeSystem": "Follow System"
+}

@@ -1,0 +1,11 @@
+# l10n.yaml
+# Flutter gen-l10n 自动从 ARB 资源生成 Dart 代码
+# 由 pubspec.yaml 中的 `flutter: generate: true` 触发
+
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppL10n
+output-dir: lib/l10n/generated
+nullable-getter: false
+synthetic-package: false

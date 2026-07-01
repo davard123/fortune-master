@@ -1,0 +1,47 @@
+name: fortune_master
+description: "中西算命大全 / Fortune Master · 一站式玄学 App 大全馆 (八字/紫微/周易/塔罗/奇门 等)"
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # 状态管理 + 路由
+  flutter_riverpod: ^2.5.1
+  go_router: ^14.2.0
+
+  # 后端 / 数据
+  supabase_flutter: ^2.5.0
+  # OpenAI 兼容客户端 (FreeLLMAPI / DeepSeek 都用)
+  openai_dart: ^0.4.5
+
+  # 支付 + 广告
+  google_mobile_ads: ^5.1.0   # Web 也支持 (AdSense 通过 web 包)
+  purchases_flutter: ^6.20.0  # RevenueCat IAP (仅 iOS/Android, Web 用 Stripe 不需要)
+
+  # PDF 报告导出
+  pdf: ^3.11.1
+  printing: ^5.13.1
+
+  # i18n + 工具
+  intl: ^0.19.0
+
+  # 时区 (排盘需要)
+  timezone: ^0.9.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.13
+
+flutter:
+  uses-material-design: true
+  generate: true  # 自动运行 gen-l10n (读取 l10n.yaml)

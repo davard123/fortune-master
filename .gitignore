@@ -1,0 +1,60 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.iml
+.idea/
+.vscode/
+*.lock-info
+pubspec.lock
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Runner.xcworkspace/xcuserdata/
+ios/Runner.xcodeproj/xcuserdata/
+
+# Android
+android/.gradle/
+android/local.properties
+android/app/key.properties
+android/build/
+android/app/build/
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.nova/
+.obsidian/
+
+# Web
+web/.dart_tool/
+web/build/
+
+# Secrets - 永不提交!
+**/.env
+**/.env.local
+**/.env.*.local
+**/secrets/
+**/google-services.json
+**/GoogleService-Info.plist
+lib/secrets.dart
+
+# Supabase
+supabase/.branches
+supabase/.temp
+supabase/.env
+# 注意: supabase/functions/** 仍要提交 (这是 Edge Function 源代码, 非 secret)
+
+# 测试覆盖率
+coverage/
+
+# 后端验证脚本临时产物
+fortune_master_tools/node_modules/
+fortune_master_tools/package-lock.json

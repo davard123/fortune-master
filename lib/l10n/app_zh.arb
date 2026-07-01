@@ -1,0 +1,81 @@
+{
+  "@@locale": "zh",
+
+  "appName": "中西算命大全",
+  "appTagline": "古今天命，一指之间",
+
+  "homeScreenTitle": "选择你的占法",
+  "homeScreenSubtitle": "挑一个术数，开始你的解读",
+
+  "systemBazi": "八字命理（四柱）",
+  "systemBaziDesc": "通过出生时刻推演你的命运",
+
+  "systemZiwei": "紫微斗数",
+  "systemZiweiDesc": "紫微十四主星照亮你的人生十二宫",
+
+  "systemIching": "周易六爻",
+  "systemIchingDesc": "向古老的卦象提出你的问题",
+
+  "systemMeihua": "梅花易数",
+  "systemMeihuaDesc": "观外应起卦，快速决断",
+
+  "systemTarot": "塔罗占卜",
+  "systemTarotDesc": "让韦特牌揭示前路的方向",
+
+  "systemQimen": "奇门遁甲",
+  "systemQimenDesc": "宇宙时机与策略选择",
+
+  "systemHoroscope": "西方占星",
+  "systemHoroscopeDesc": "你出生时刻的星象图谱",
+
+  "systemDream": "周公解梦",
+  "systemDreamDesc": "解读你梦境中的讯息",
+
+  "tierFree": "免费",
+  "tierBrief": "简要解读",
+  "tierDetailed": "详细解读",
+  "tierPdf": "完整报告",
+
+  "actionStartReading": "开始解读",
+  "actionWatchAd": "观看广告解锁",
+  "actionSubscribe": "订阅",
+  "actionSignIn": "登录",
+  "actionSignOut": "退出登录",
+
+  "formBirthDate": "出生日期",
+  "formBirthTime": "出生时间",
+  "formGender": "性别",
+  "formGenderMale": "男",
+  "formGenderFemale": "女",
+  "formGenderOther": "其他",
+  "formQuestion": "你的问题",
+  "formQuestionHint": "你今天有什么想问的？",
+
+  "subscribeMonthly": "月度订阅 · ¥35",
+  "subscribeYearly": "年度订阅 · ¥279（省 33%）",
+
+  "disclaimer": "本应用仅供娱乐参考，不构成人生决策建议。",
+  "i18nInfo": "支持英文与简体中文",
+
+  "adLoading": "正在加载广告…",
+  "adComplete": "感谢观看！解读已解锁。",
+  "adFailed": "广告加载失败，请稍后重试。",
+
+  "loading": "加载中…",
+  "errorNetwork": "网络错误，请检查连接。",
+  "errorLoginRequired": "请登录后查看此解读。",
+  "errorServer": "服务器错误，请稍后重试。",
+
+  "menuHome": "首页",
+  "menuCommunity": "社区",
+  "menuProfile": "我的",
+  "menuSettings": "设置",
+
+  "settingsLanguage": "语言",
+  "settingsLanguageEN": "English",
+  "settingsLanguageZH": "简体中文",
+  "settingsTheme": "主题",
+  "settingsThemeLight": "浅色",
+  "settingsThemeDark": "深色",
+  "settingsThemeSystem": "跟随系统"
+}
