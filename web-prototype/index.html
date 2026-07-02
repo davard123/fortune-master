@@ -6,7 +6,7 @@
 <title>Fortune Master · 中西算命大全</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Noto+Serif+SC:wght@300;400;500;600&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#efe4cb;
@@ -93,10 +93,12 @@ nav{
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes spinrev{to{transform:rotate(-360deg)}}
 .hero-title{
-  font-size:clamp(38px,6vw,64px);
-  letter-spacing:.28em;text-indent:.28em;
-  font-family:'ZCOOL XiaoWei',serif;
+  font-size:clamp(40px,6.4vw,68px);
+  letter-spacing:.24em;text-indent:.24em;
+  font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;
   color:var(--moon);
+  -webkit-text-stroke:1.6px var(--moon);
+  paint-order:stroke fill;
   margin-top:-170px;
   position:relative;z-index:2;
   text-shadow:0 0 26px rgba(239,228,203,.95),0 0 46px rgba(239,228,203,.85);
@@ -127,7 +129,7 @@ nav{
 
 /* ---------- section heading ---------- */
 .sec-head{text-align:center;margin:90px 0 54px}
-.sec-head .zh{font-size:26px;letter-spacing:.5em;text-indent:.5em;font-family:'ZCOOL XiaoWei',serif}
+.sec-head .zh{font-size:27px;letter-spacing:.5em;text-indent:.5em;font-family:'ZCOOL XiaoWei',serif;-webkit-text-stroke:.7px var(--moon);paint-order:stroke fill}
 .sec-head .en{display:block;font-size:11px;color:var(--gold);margin-top:10px}
 .sec-head .rule{
   width:180px;height:9px;margin:22px auto 0;position:relative;
@@ -186,7 +188,7 @@ nav{
   content:"";position:absolute;inset:10px;border:1px solid var(--hairline-soft);pointer-events:none;
 }
 .demo-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:12px;margin-bottom:44px}
-.demo-head .t{font-size:21px;letter-spacing:.3em;font-family:'ZCOOL XiaoWei',serif}
+.demo-head .t{font-size:21px;letter-spacing:.3em;font-family:'ZCOOL XiaoWei',serif;-webkit-text-stroke:.6px var(--moon);paint-order:stroke fill}
 .demo-head .t .en{display:block;font-size:10px;color:var(--gold);margin-top:6px}
 .demo-head .meta{font-size:12px;color:var(--moon-faint)}
 .pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:14px}
