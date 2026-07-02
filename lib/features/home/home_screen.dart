@@ -1,9 +1,13 @@
 // lib/features/home/home_screen.dart
-// 首页: 8 种术数入口
+// 首页: 8 种术数入口. 视觉移植自 web-prototype/index.html 的宣纸鎏金主题.
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../core/mystic_theme.dart';
+import '../../core/widgets/gold_dust_backdrop.dart';
+import '../../core/widgets/mystic_compass.dart';
 
 /// 部署站点基址 (Cloudflare Pages). 改域名只需改这里一处.
 const String _kSiteBaseUrl = 'https://fortune-master.pages.dev';
@@ -15,20 +19,49 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final items = [
-      _SystemItem('bazi',     l10n.systemBazi,       l10n.systemBaziDesc,     Icons.access_time,     const Color(0xFF6750A4)),
-      _SystemItem('tarot',    l10n.systemTarot,      l10n.systemTarotDesc,    Icons.auto_awesome,    const Color(0xFFD0BCFF)),
-      _SystemItem('iching',   l10n.systemIching,     l10n.systemIchingDesc,   Icons.balance,         const Color(0xFF4A148C)),
-      _SystemItem('ziwei',    l10n.systemZiwei,      l10n.systemZiweiDesc,    Icons.star,            const Color(0xFF1A237E)),
-      _SystemItem('meihua',   l10n.systemMeihua,     l10n.systemMeihuaDesc,   Icons.spa,             const Color(0xFF00695C)),
-      _SystemItem('qimen',    l10n.systemQimen,      l10n.systemQimenDesc,    Icons.gps_fixed,       const Color(0xFFE65100)),
-      _SystemItem('astro',    l10n.systemHoroscope,  l10n.systemHoroscopeDesc,Icons.public,          const Color(0xFF1565C0)),
-      _SystemItem('dream',    l10n.systemDream,      l10n.systemDreamDesc,    Icons.nightlight,      const Color(0xFF6A1B9A)),
+      _SystemItem('bazi', l10n.systemBazi, 'BAZI', Icons.access_time_filled),
+      _SystemItem('ziwei', l10n.systemZiwei, 'ZI WEI DOU SHU', Icons.auto_awesome),
+      _SystemItem('iching', l10n.systemIching, 'I CHING', Icons.grid_view_rounded),
+      _SystemItem('meihua', l10n.systemMeihua, 'PLUM BLOSSOM', Icons.local_florist),
+      _SystemItem('tarot', l10n.systemTarot, 'TAROT', Icons.style, hot: true),
+      _SystemItem('qimen', l10n.systemQimen, 'QI MEN DUN JIA', Icons.explore),
+      _SystemItem('astro', l10n.systemHoroscope, 'ASTROLOGY', Icons.public),
+      _SystemItem('dream', l10n.systemDream, 'DREAM ORACLE', Icons.nightlight_round),
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.appName),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: MysticColors.gold, width: 1),
+              ),
+              child: Text('卜', style: MysticFonts.title(16, color: MysticColors.gold)),
+            ),
+            const SizedBox(width: 10),
+            Text(l10n.appName, style: MysticFonts.title(16)),
+          ],
+        ),
         actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              border: Border.all(color: MysticColors.jade.withOpacity(.4)),
+              borderRadius: BorderRadius.circular(2),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              l10n.homeSelfTestBadge,
+              style: MysticFonts.body(10, color: MysticColors.jade),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.auto_stories_outlined),
             tooltip: l10n.menuLandingTooltip,
@@ -41,37 +74,30 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              l10n.homeScreenTitle,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              l10n.homeScreenSubtitle,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 200,
-                childAspectRatio: 0.85,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
+      body: GoldDustBackdrop(
+        child: SafeArea(
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(child: _Hero(l10n: l10n)),
+              SliverToBoxAdapter(child: _SectionHeading(zh: l10n.homeScreenTitle, en: 'DIVINATION ARTS')),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 220,
+                    childAspectRatio: .82,
+                    mainAxisSpacing: 14,
+                    crossAxisSpacing: 14,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (ctx, i) => _SystemCard(item: items[i]),
+                    childCount: items.length,
+                  ),
+                ),
               ),
-              itemCount: items.length,
-              itemBuilder: (ctx, i) => _SystemCard(item: items[i]),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
       bottomNavigationBar: BottomAppBar(
         child: Padding(
@@ -94,7 +120,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const Divider(height: 4),
+              Divider(height: 4, color: MysticColors.hairlineSoft),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -105,9 +131,9 @@ class HomeScreen extends StatelessWidget {
                     ),
                     onPressed: () => _openLegal(context, 'privacy'),
                     child: Text(l10n.legalPrivacy,
-                        style: Theme.of(context).textTheme.bodySmall),
+                        style: MysticFonts.body(11, color: MysticColors.moonFaint)),
                   ),
-                  Text('·', style: Theme.of(context).textTheme.bodySmall),
+                  Text('·', style: MysticFonts.body(11, color: MysticColors.moonFaint)),
                   TextButton(
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -115,9 +141,9 @@ class HomeScreen extends StatelessWidget {
                     ),
                     onPressed: () => _openLegal(context, 'terms'),
                     child: Text(l10n.legalTerms,
-                        style: Theme.of(context).textTheme.bodySmall),
+                        style: MysticFonts.body(11, color: MysticColors.moonFaint)),
                   ),
-                  Text('·', style: Theme.of(context).textTheme.bodySmall),
+                  Text('·', style: MysticFonts.body(11, color: MysticColors.moonFaint)),
                   TextButton(
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -125,7 +151,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     onPressed: () => _openLegal(context, 'cookies'),
                     child: Text(l10n.legalCookies,
-                        style: Theme.of(context).textTheme.bodySmall),
+                        style: MysticFonts.body(11, color: MysticColors.moonFaint)),
                   ),
                 ],
               ),
@@ -137,13 +163,75 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+class _Hero extends StatelessWidget {
+  final AppL10n l10n;
+  const _Hero({required this.l10n});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+      child: Column(
+        children: [
+          const MysticCompass(size: 220),
+          Transform.translate(
+            offset: const Offset(0, -70),
+            child: Column(
+              children: [
+                Text(
+                  l10n.appName,
+                  textAlign: TextAlign.center,
+                  style: MysticFonts.heading(40),
+                ),
+                const SizedBox(height: 6),
+                Text(l10n.appTagline, style: MysticFonts.en(12)),
+                const SizedBox(height: 14),
+                Text(
+                  l10n.homeScreenSubtitle,
+                  textAlign: TextAlign.center,
+                  style: MysticFonts.body(13, color: MysticColors.moonDim),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionHeading extends StatelessWidget {
+  final String zh;
+  final String en;
+  const _SectionHeading({required this.zh, required this.en});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      child: Column(
+        children: [
+          Text(zh, textAlign: TextAlign.center, style: MysticFonts.title(22)),
+          const SizedBox(height: 6),
+          Text(en, style: MysticFonts.en(10)),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: 140,
+            child: Divider(color: MysticColors.goldDim, height: 1, thickness: .6),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _SystemItem {
   final String route;
   final String title;
-  final String desc;
+  final String en;
   final IconData icon;
-  final Color color;
-  _SystemItem(this.route, this.title, this.desc, this.icon, this.color);
+  final bool hot;
+  _SystemItem(this.route, this.title, this.en, this.icon, {this.hot = false});
 }
 
 /// 打开隐私 / 条款 / Cookie 静态页. 云端部署后 URL 形如:
@@ -180,45 +268,67 @@ class _SystemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () => context.push('/${item.route}'),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            colors: [item.color.withOpacity(0.85), item.color.withOpacity(0.55)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return Material(
+      color: MysticColors.ink2,
+      borderRadius: BorderRadius.circular(4),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(4),
+        onTap: () => context.push('/${item.route}'),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: MysticColors.hairlineSoft),
           ),
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Icon(item.icon, size: 32, color: Colors.white),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+          padding: const EdgeInsets.fromLTRB(18, 20, 18, 16),
+          child: Stack(
+            children: [
+              if (item.hot)
+                Positioned(
+                  top: -6,
+                  right: -6,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: MysticColors.cinnabar.withOpacity(.5)),
+                    ),
+                    child: Text('热门', style: MysticFonts.body(9, color: MysticColors.cinnabar)),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  item.desc,
-                  style: const TextStyle(color: Colors.white70, fontSize: 11),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ],
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: MysticColors.hairline),
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(item.icon, size: 20, color: MysticColors.gold),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(item.title, style: MysticFonts.title(16)),
+                  const SizedBox(height: 3),
+                  Text(item.en, style: MysticFonts.en(9)),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      Container(width: 18, height: 1, color: MysticColors.goldDim),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '立即排盘',
+                          style: MysticFonts.body(10, color: MysticColors.goldDim),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

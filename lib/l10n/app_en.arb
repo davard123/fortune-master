@@ -6,6 +6,7 @@
 
   "homeScreenTitle": "Choose Your Path",
   "homeScreenSubtitle": "Pick a divination method to begin",
+  "homeSelfTestBadge": "Self-test build · unlocked",
 
   "systemBazi": "Four Pillars of Destiny",
   "@systemBazi": { "description": "八字命理" },
