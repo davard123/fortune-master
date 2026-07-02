@@ -9,19 +9,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Noto+Serif+SC:wght@300;400;500;600&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#0a0c16;
-  --ink-2:#10131f;
-  --ink-3:#171b2c;
-  --gold:#c9a45c;
-  --gold-bright:#e8c987;
-  --gold-dim:#8a7440;
-  --cinnabar:#c04851;
-  --jade:#5e8c7a;
-  --moon:#e9e4d6;
-  --moon-dim:#a29d8f;
-  --moon-faint:#6b675c;
-  --hairline:rgba(201,164,92,.22);
-  --hairline-soft:rgba(201,164,92,.12);
+  --ink:#efe4cb;
+  --ink-2:#f6eeda;
+  --ink-3:#fbf5e6;
+  --gold:#9a742e;
+  --gold-bright:#7d5a1c;
+  --gold-dim:#b3924f;
+  --cinnabar:#b43a3a;
+  --jade:#4a7a64;
+  --moon:#3d3122;
+  --moon-dim:#6f5f45;
+  --moon-faint:#98876a;
+  --hairline:rgba(154,116,46,.38);
+  --hairline-soft:rgba(154,116,46,.2);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -33,7 +33,11 @@ body{
   overflow-x:hidden;
   line-height:1.7;
 }
-::selection{background:var(--gold-dim);color:var(--ink)}
+::selection{background:var(--gold-dim);color:#fff}
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 55% at 50% 0%,rgba(213,178,106,.28),transparent 70%);
+}
 
 /* ---------- star field ---------- */
 #sky{position:fixed;inset:0;z-index:0;pointer-events:none}
@@ -69,7 +73,7 @@ nav{
   color:var(--gold);cursor:pointer;background:none;font-family:inherit;font-size:12px;
   letter-spacing:.15em;transition:all .3s;
 }
-.lang-switch:hover{border-color:var(--gold);background:rgba(201,164,92,.08)}
+.lang-switch:hover{border-color:var(--gold);background:rgba(154,116,46,.08)}
 .test-badge{
   font-size:11px;color:var(--jade);border:1px solid rgba(94,140,122,.4);
   padding:3px 10px;border-radius:2px;letter-spacing:.1em;
@@ -95,7 +99,7 @@ nav{
   color:var(--moon);
   margin-top:-170px;
   position:relative;z-index:2;
-  text-shadow:0 0 40px rgba(10,12,22,.9);
+  text-shadow:0 0 26px rgba(239,228,203,.95),0 0 46px rgba(239,228,203,.85);
 }
 .hero-sub-en{
   font-size:clamp(13px,1.6vw,17px);color:var(--gold);margin-top:18px;
@@ -109,9 +113,9 @@ nav{
   border:1px solid var(--gold);color:var(--gold-bright);
   padding:14px 52px;font-size:14px;letter-spacing:.4em;text-indent:.4em;
   text-decoration:none;position:relative;transition:all .4s;
-  background:linear-gradient(rgba(201,164,92,0),rgba(201,164,92,0));
+  background:linear-gradient(rgba(154,116,46,0),rgba(154,116,46,0));
 }
-.hero-cta:hover{background:rgba(201,164,92,.1);box-shadow:0 0 30px rgba(201,164,92,.15)}
+.hero-cta:hover{background:rgba(154,116,46,.1);box-shadow:0 0 30px rgba(154,116,46,.18)}
 .hero-cta::before,.hero-cta::after{
   content:"";position:absolute;width:7px;height:7px;border:1px solid var(--gold);
   transition:all .4s;
@@ -157,7 +161,7 @@ nav{
   display:flex;align-items:center;justify-content:center;
 }
 .card .emblem svg{width:100%;height:100%;overflow:visible}
-.card:hover .emblem svg .glow-on-hover{filter:drop-shadow(0 0 6px rgba(201,164,92,.7))}
+.card:hover .emblem svg .glow-on-hover{filter:drop-shadow(0 0 6px rgba(154,116,46,.55))}
 .card h3{font-size:19px;letter-spacing:.28em;color:var(--moon)}
 .card .card-en{font-size:10px;color:var(--gold);margin-top:5px;display:block}
 .card p{font-size:12.5px;color:var(--moon-dim);margin-top:14px;line-height:1.8}
@@ -188,10 +192,10 @@ nav{
 .pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:14px}
 .pillar{
   text-align:center;padding:26px 10px 22px;
-  background:linear-gradient(180deg,rgba(201,164,92,.06),rgba(201,164,92,.015));
+  background:linear-gradient(180deg,rgba(154,116,46,.08),rgba(154,116,46,.02));
   border:1px solid var(--hairline-soft);position:relative;
 }
-.pillar.day{border-color:var(--gold-dim);background:linear-gradient(180deg,rgba(201,164,92,.13),rgba(201,164,92,.03))}
+.pillar.day{border-color:var(--gold-dim);background:linear-gradient(180deg,rgba(154,116,46,.18),rgba(154,116,46,.05))}
 .pillar .lab{font-size:11px;color:var(--gold);letter-spacing:.3em;margin-bottom:16px}
 .pillar .gz{font-family:'ZCOOL XiaoWei',serif;font-size:44px;line-height:1.25;color:var(--moon)}
 .pillar.day .gz{color:var(--gold-bright)}
@@ -203,12 +207,12 @@ nav{
 .wuxing .wx-label{font-size:12px;color:var(--gold);letter-spacing:.25em;margin-bottom:18px}
 .wx-row{display:flex;align-items:center;gap:14px;margin-bottom:10px}
 .wx-row .name{width:34px;font-size:14px;font-family:'ZCOOL XiaoWei',serif}
-.wx-row .bar{flex:1;height:5px;background:rgba(255,255,255,.05);position:relative}
+.wx-row .bar{flex:1;height:5px;background:rgba(61,49,34,.1);position:relative}
 .wx-row .bar i{position:absolute;left:0;top:0;bottom:0;display:block}
 .wx-row .pct{width:40px;text-align:right;font-size:11px;color:var(--moon-dim)}
-.wx-metal i{background:linear-gradient(90deg,#8f8f96,#d8d8dd)}
+.wx-metal i{background:linear-gradient(90deg,#6e6e76,#a3a3ac)}
 .wx-fire i{background:linear-gradient(90deg,#8c3a41,#c04851)}
-.wx-earth i{background:linear-gradient(90deg,#8a6f3f,#c9a45c)}
+.wx-earth i{background:linear-gradient(90deg,#8a6f3f,#b3924f)}
 .wx-wood i{background:linear-gradient(90deg,#3f6b57,#5e8c7a)}
 .wx-water i{background:linear-gradient(90deg,#2f4b6e,#4a76a8)}
 
@@ -257,26 +261,26 @@ footer .en{color:var(--gold-dim);font-size:10px}
 <section class="hero">
   <div class="bagua-wrap" aria-hidden="true">
     <svg viewBox="0 0 340 340" class="spin-slow">
-      <g fill="none" stroke="#c9a45c" stroke-opacity=".35">
+      <g fill="none" stroke="#9a742e" stroke-opacity=".35">
         <circle cx="170" cy="170" r="168" stroke-width="1"/>
         <circle cx="170" cy="170" r="158" stroke-width=".5" stroke-dasharray="2 6"/>
       </g>
       <g id="trigrams"></g>
     </svg>
     <svg viewBox="0 0 340 340" class="spin-rev">
-      <g fill="none" stroke="#c9a45c" stroke-opacity=".5">
+      <g fill="none" stroke="#9a742e" stroke-opacity=".5">
         <circle cx="170" cy="170" r="118" stroke-width=".6"/>
         <circle cx="170" cy="170" r="112" stroke-width=".4" stroke-dasharray="1 5"/>
       </g>
-      <g id="zodiacring" font-family="'Noto Serif SC',serif" font-size="13" fill="#8a7440" text-anchor="middle"></g>
+      <g id="zodiacring" font-family="'Noto Serif SC',serif" font-size="13" fill="#b3924f" text-anchor="middle"></g>
     </svg>
     <svg viewBox="0 0 340 340">
       <g transform="translate(170 170)">
-        <circle r="46" fill="none" stroke="#c9a45c" stroke-opacity=".55" stroke-width=".8"/>
-        <path d="M0,-40 A40,40 0 0,1 0,40 A20,20 0 0,1 0,0 A20,20 0 0,0 0,-40 Z" fill="#c9a45c" fill-opacity=".85"/>
-        <path d="M0,-40 A40,40 0 0,0 0,40 A20,20 0 0,0 0,0 A20,20 0 0,1 0,-40 Z" fill="#10131f"/>
-        <circle cy="-20" r="6" fill="#10131f"/>
-        <circle cy="20" r="6" fill="#c9a45c" fill-opacity=".85"/>
+        <circle r="46" fill="none" stroke="#9a742e" stroke-opacity=".55" stroke-width=".8"/>
+        <path d="M0,-40 A40,40 0 0,1 0,40 A20,20 0 0,1 0,0 A20,20 0 0,0 0,-40 Z" fill="#9a742e" fill-opacity=".85"/>
+        <path d="M0,-40 A40,40 0 0,0 0,40 A20,20 0 0,0 0,0 A20,20 0 0,1 0,-40 Z" fill="#f6eeda"/>
+        <circle cy="-20" r="6" fill="#f6eeda"/>
+        <circle cy="20" r="6" fill="#9a742e" fill-opacity=".85"/>
       </g>
     </svg>
   </div>
@@ -390,7 +394,7 @@ addEventListener('resize', resize); resize();
     const a = .25 + .55*Math.abs(Math.sin(st.p + time*st.s*.4));
     cx.beginPath();
     cx.arc(st.x, st.y, st.r, 0, 7);
-    cx.fillStyle = `rgba(233,228,214,${a})`;
+    cx.fillStyle = `rgba(122,90,42,${a})`;
     cx.fill();
   }
   requestAnimationFrame(tick);
@@ -406,10 +410,10 @@ TRI.forEach((lines, i) => {
   lines.forEach((solid, j) => {
     const y = j*8;
     if(solid){
-      g.innerHTML += `<rect x="-16" y="${y}" width="32" height="4" fill="#c9a45c" fill-opacity=".8"/>`;
+      g.innerHTML += `<rect x="-16" y="${y}" width="32" height="4" fill="#9a742e" fill-opacity=".8"/>`;
     } else {
-      g.innerHTML += `<rect x="-16" y="${y}" width="13" height="4" fill="#c9a45c" fill-opacity=".8"/>
-                      <rect x="3"  y="${y}" width="13" height="4" fill="#c9a45c" fill-opacity=".8"/>`;
+      g.innerHTML += `<rect x="-16" y="${y}" width="13" height="4" fill="#9a742e" fill-opacity=".8"/>
+                      <rect x="3"  y="${y}" width="13" height="4" fill="#9a742e" fill-opacity=".8"/>`;
     }
   });
   tg.appendChild(g);
@@ -429,7 +433,7 @@ BR.forEach((ch, i) => {
 
 /* ---------- divination cards ---------- */
 const S = 'http://www.w3.org/2000/svg';
-const gold = '#c9a45c', goldB = '#e8c987', dim = '#8a7440';
+const gold = '#9a742e', goldB = '#7d5a1c', dim = '#b3924f';
 const cards = [
   { zh:'八字', en:'FOUR PILLARS · BAZI', hot:false,
     desc:'以生辰四柱天干地支，推演一生格局起伏。',
