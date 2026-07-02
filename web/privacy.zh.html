@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>隐私政策 · 中西算命大全</title>
+  <link rel="stylesheet" href="legal/style.css" />
+</head>
+<body>
+  <div class="lang-switch"><a href="privacy/index.html">English</a></div>
+  <div class="container">
+    <header>
+      <h1>隐私政策</h1>
+      <p class="meta">生效日期：2026-07-01 · 最近更新：2026-07-01</p>
+    </header>
+
+    <p>本隐私政策说明 Fortune Master（「我们」「我方」）在您访问 fortune-master.pages.dev（「本服务」）时，如何收集、使用、披露和保护您的信息。</p>
+
+    <p>本服务由个人开发者（davard123）独立运营。如有隐私相关问题，请联系 <strong>privacy@fortunemaster.app</strong>。</p>
+
+    <div class="disclaimer-box">
+      <strong>仅供娱乐：本服务</strong>提供的占卜内容仅用于娱乐与自我反思，<strong>不构成医疗、法律、财务、心理或职业建议</strong>。AI 生成的解读可能存在错误，请保持独立判断。
+    </div>
+
+    <h2>1. 我们收集的信息</h2>
+
+    <h3>1.1 账户数据</h3>
+    <ul>
+      <li><strong>电子邮件地址</strong> —— 注册时提供，用于保存解读记录与社区发帖。</li>
+      <li><strong>显示名称</strong> —— 由您选择，默认填入邮箱前缀。</li>
+    </ul>
+
+    <h3>1.2 占卜输入（敏感数据）</h3>
+    <ul>
+      <li><strong>出生日期、出生时间、出生城市、IANA 时区、性别</strong>。用于依赖这些信息的排盘（八字、紫微、占星）。</li>
+      <li><strong>自由文本提问</strong>（塔罗/周易/奇门）—— 完全可选，您可不填。</li>
+    </ul>
+    <p>我们<em>刻意不收集</em>精确的出生经纬度（区别于大多数占星产品）。城市级精度对我们的排盘已足够。</p>
+
+    <h3>1.3 排盘数据</h3>
+    <p>上述占卜输入、计算得到的四柱/牌面/卦象等，以及您选择保存的 AI 解读（`llm_interp`）。</p>
+
+    <h3>1.4 社区内容</h3>
+    <ul>
+      <li>您创作的帖子与评论（除非您标记为「匿名」，否则其他用户可见）。</li>
+      <li>点赞、收藏等互动。</li>
+    </ul>
+
+    <h3>1.5 订阅 / 支付数据</h3>
+    <ul>
+      <li>订阅等级、状态、续费日期（iOS / Android 由 RevenueCat 管理，Web 由 Stripe 管理）。</li>
+      <li>我们从不获取或存储您的完整信用卡号。支付数据完全由支付处理商处理。</li>
+    </ul>
+
+    <h3>1.6 技术 / 设备数据</h3>
+    <ul>
+      <li><strong>IP 地址</strong>、基础浏览器 / 设备信息、请求时间戳 —— 由我们的托管与边缘服务捕获。</li>
+      <li>汇总使用分析（仅在您主动加入后启用，默认关闭）。</li>
+    </ul>
+
+    <h2>2. 信息使用方式</h2>
+    <ul>
+      <li>生成您请求的占卜盘。</li>
+      <li>保存您的解读历史，便于随时回顾。</li>
+      <li>当您点击「AI 解读」时调用 LLM（解读文本连同排盘数据发送至我们的 LLM 提供商，详见 §5）。</li>
+      <li>运营社区功能并防止滥用。</li>
+      <li>管理订阅并防止退款欺诈。</li>
+      <li>响应举报与法律请求。</li>
+    </ul>
+
+    <h2>3. 处理法律依据（GDPR 第 6 条）</h2>
+    <ul>
+      <li><strong>同意</strong> —— 用于离开我们基础设施的 AI 解读调用。</li>
+      <li><strong>合同</strong> —— 用于向付费订阅用户交付订阅服务。</li>
+      <li><strong>正当利益</strong> —— 用于安全、滥用防控和基础服务分析。</li>
+    </ul>
+
+    <h2>4. Cookie 与类似技术</h2>
+    <p>我们<strong>仅使用严格必要的 Cookie</strong> —— 由我们的认证服务（Supabase）设置，用于保持您的登录状态。当前不设置广告或分析 Cookie。详见<a href="cookies/">Cookie 声明</a>。</p>
+
+    <h2>5. 第三方处理商</h2>
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+      <thead><tr style="background:var(--surface);"><th style="text-align:left;padding:8px;border-bottom:1px solid var(--border);">处理商</th><th style="text-align:left;padding:8px;border-bottom:1px solid var(--border);">用途</th><th style="text-align:left;padding:8px;border-bottom:1px solid var(--border);">数据</th><th style="text-align:left;padding:8px;border-bottom:1px solid var(--border);">托管</th></tr></thead>
+      <tbody>
+        <tr><td style="padding:8px;border-bottom:1px solid var(--border);"><strong>Supabase Inc.</strong></td><td style="padding:8px;border-bottom:1px solid var(--border);">数据库、认证、文件存储、边缘计算</td><td style="padding:8px;border-bottom:1px solid var(--border);">§1.1–1.6 全部</td><td style="padding:8px;border-bottom:1px solid var(--border);">美国 (us-west-1)</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid var(--border);"><strong>Cloudflare Inc.</strong></td><td style="padding:8px;border-bottom:1px solid var(--border);">静态托管、CDN</td><td style="padding:8px;border-bottom:1px solid var(--border);">IP、访问日志</td><td style="padding:8px;border-bottom:1px solid var(--border);">全球边缘</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid var(--border);"><strong>DeepSeek</strong>（生产）/ <strong>FreeLLMAPI</strong>（开发）</td><td style="padding:8px;border-bottom:1px solid var(--border);">AI 解读</td><td style="padding:8px;border-bottom:1px solid var(--border);">排盘数据 + 语言（不含邮箱、个人资料）</td><td style="padding:8px;border-bottom:1px solid var(--border);">中国 / 自托管</td></tr>
+        <tr><td style="padding:8px;border-bottom:1px solid var(--border);"><strong>RevenueCat</strong>（订阅启用时）</td><td style="padding:8px;border-bottom:1px solid var(--border);">内购订阅管理</td><td style="padding:8px;border-bottom:1px solid var(--border);">匿名用户 id、收据</td><td style="padding:8px;border-bottom:1px solid var(--border);">美国</td></tr>
+      </tbody>
+    </table>
+
+    <h2>6. 跨境数据传输</h2>
+    <p>我们的主托管在美国（Supabase us-west-1 + Cloudflare 全球网络）。若您位于欧盟 / 欧洲经济区 / 英国 / 中国，您的数据将被传输至美国并在美国处理。当我们使用 DeepSeek 做 AI 解读时，排盘文本会被传输至中国。对于从欧盟 / EEA 出境的传输，我们依赖欧盟标准合同条款（SCC）。</p>
+
+    <h2>7. 数据保留</h2>
+    <ul>
+      <li>账户数据：保留至您注销账户后 30 天（恢复期）。</li>
+      <li>排盘结果与保存的解读：保留至您主动删除或注销账户。</li>
+      <li>帖子/评论：保留至您主动删除。账户注销后，将原始创作匿名化保留，但解除关联。</li>
+      <li>订阅记录：按法定会计周期保留（通常 7 年）。</li>
+      <li>服务器日志：90 天，到期后汇总或删除。</li>
+    </ul>
+
+    <h2>8. 您的权利</h2>
+    <p>在适用法律（GDPR、CCPA、PIPL、LGPD）覆盖的地区，您有权：</p>
+    <ul>
+      <li>访问我们持有的关于您的个人数据</li>
+      <li>更正不准确的数据</li>
+      <li>删除您的数据</li>
+      <li>以可移植格式（JSON）导出数据</li>
+      <li>限制或反对处理</li>
+      <li>撤回同意（针对 AI 解读调用）</li>
+    </ul>
+    <p>行使上述权利请发邮件至 <strong>privacy@fortunemaster.app</strong>，我们在 30 天内回复。</p>
+
+    <h2>9. 儿童</h2>
+    <p>本服务不针对 16 岁以下（美国 13 岁、部分欧盟 14 岁）用户。我们不会故意收集儿童数据。如发现儿童已注册，请联系我们删除。</p>
+
+    <h2>10. 安全</h2>
+    <p>我们使用 Supabase Row-Level Security、全程 HTTPS、由 Supabase Auth 处理的密码散列、访问受控的 Edge Functions。任何系统都无法保证绝对安全；如发现漏洞，请负责任地电邮 <strong>security@fortunemaster.app</strong>。</p>
+
+    <h2>11. 政策变更</h2>
+    <p>重大变更将在 App 内与本页同时公告。继续使用即视为接受变更。</p>
+
+    <h2>12. 联系方式</h2>
+    <p>邮箱：<strong>privacy@fortunemaster.app</strong><br/>通讯地址：（个人项目，请通过邮件索取）</p>
+
+    <footer>
+      <p>© 2026 Fortune Master · 个人项目 · 最近审阅 2026-07-01</p>
+      <a class="back-home" href="/">← 返回 App</a>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Cloudflare Pages redirects.
+# https://developers.cloudflare.com/pages/configuration/redirects/
+#
+# Note: explicit rule ordering — most specific first.
+# No /* SPA fallback here: Cloudflare Pages automatically serves /index.html for any
+# path that doesn't match a static file (so /bazi, /tarot, /profile all hit the SPA).
+
+/privacy       /privacy/       301
+/privacy.html  /privacy/       301
+/terms         /terms/         301
+/terms.html    /terms/         301
+/cookies       /cookies/       301
+/cookies.html  /cookies/       301

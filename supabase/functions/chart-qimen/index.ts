@@ -11,12 +11,11 @@
 //   详见 docs/incidents/2026-07-01-taibu-core-qimen-empty.md 结案.
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
+import { handleCorsPreflight, jsonResponse } from '../_shared/cors.ts';
 
 interface QimenRequest {
-  datetime?: string;     // ISO 字符串, 如 "2026-07-01T14:30:00+08:00" (前端友好)
+  datetime?: string;
   question?: string;
-  // 也可直传:
-  // year, month, day, hour, minute
   year?: number;
   month?: number;
   day?: number;
@@ -24,16 +23,12 @@ interface QimenRequest {
   minute?: number;
 }
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Content-Type': 'application/json',
-};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const Deno: any;
 
-// 从 ISO 字符串解析"墙钟时间"字面量
+// 从 ISO 字符串解析"墙钟时间"字面量.
 // Edge Runtime 是 UTC, new Date(y,m-1,d,h,min) 的本地 getter 返回传入数字
-// 所以"用户本地 14:30"等价于"机器 UTC 14:30" —— 巧合正确, 不需要时区切换
+// 所以"用户本地 14:30"等价于"机器 UTC 14:30" —— 巧合正确, 不需要时区切换.
 function parseWallClock(iso: string) {
   const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
   if (!m) return null;
@@ -41,37 +36,50 @@ function parseWallClock(iso: string) {
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
+  if (req.method === 'OPTIONS') return handleCorsPreflight(req);
+  if (req.method !== 'POST') {
+    return jsonResponse(req, { error: 'Method not allowed' }, 405);
+  }
 
   try {
     const body: QimenRequest = await req.json().catch(() => ({}));
 
-    // 解析入参: 优先 ISO datetime, 回落到 year/month/day/hour
-    let wall = null;
+    let wall: { year: number; month: number; day: number; hour: number; minute: number } | null = null;
     if (body.datetime) {
       wall = parseWallClock(body.datetime);
     } else if (body.year && body.month && body.day && body.hour !== undefined) {
-      wall = { year: body.year, month: body.month, day: body.day, hour: body.hour, minute: body.minute ?? 0 };
+      wall = {
+        year: body.year,
+        month: body.month,
+        day: body.day,
+        hour: body.hour,
+        minute: body.minute ?? 0,
+      };
     }
     if (!wall) {
-      return new Response(
-        JSON.stringify({ error: 'Provide {datetime: ISO string} or {year, month, day, hour[, minute]}' }),
-        { status: 400, headers: CORS },
+      return jsonResponse(
+        req,
+        {
+          error:
+            'Provide {datetime: ISO string} or {year, month, day, hour[, minute]}',
+        },
+        400,
       );
     }
 
-    // 调 taibu-core —— 必须 await!
     const { calculateQimen } = await import('npm:taibu-core@^3.4.0/qimen');
     const chart = await calculateQimen({ ...wall, question: body.question });
 
-    return new Response(
-      JSON.stringify({ chart_data: chart, system: 'qimen', computedAt: new Date().toISOString() }),
-      { headers: CORS },
-    );
+    return jsonResponse(req, {
+      chart_data: chart,
+      system: 'qimen',
+      computedAt: new Date().toISOString(),
+    });
   } catch (e) {
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : 'Unknown error' }),
-      { status: 500, headers: CORS },
+    return jsonResponse(
+      req,
+      { error: e instanceof Error ? e.message : 'Unknown error' },
+      500,
     );
   }
 });

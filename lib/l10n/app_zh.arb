@@ -93,5 +93,30 @@
   "settingsTheme": "主题",
   "settingsThemeLight": "浅色",
   "settingsThemeDark": "深色",
-  "settingsThemeSystem": "跟随系统"
+  "settingsThemeSystem": "跟随系统",
+
+  "tarotFormTitle": "塔罗占卜",
+  "tarotSpreadLabel": "牌阵",
+  "tarotSpreadSingle": "抽取一张",
+  "tarotSpreadThree": "三牌阵 · 时间之流",
+  "tarotSpreadCeltic": "凯尔特十字",
+  "tarotQuestionLabel": "你的问题（可选）",
+  "tarotQuestionHint": "心中默念一个问题，然后抽取牌卡…",
+  "tarotCardUpright": "正位",
+  "tarotCardReversed": "逆位",
+  "tarotCardMeaning": "释义",
+  "tarotCardKeywords": "关键词",
+  "tarotCardPosition": "位置",
+  "tarotResultTitle": "你的解读",
+  "tarotDrawAgain": "再抽一次",
+
+  "interpretLoading": "正在生成解读…",
+  "interpretDisclaimer": "本解读仅供娱乐参考，不构成专业建议。",
+  "interpretEmpty": "模型返回了空解读，请重试。",
+  "interpretRetry": "重新解读",
+  "interpretUpgradeToDetailed": "获取详细解读",
+
+  "legalPrivacy": "隐私",
+  "legalTerms": "条款",
+  "legalCookies": "Cookie"
 }

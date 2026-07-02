@@ -1,0 +1,28 @@
+# Cloudflare Pages project configuration.
+# Only used if deploying with `wrangler pages deploy` rather than Git integration.
+# Git integration: Settings → Build & deployment → set build command + output dir in dashboard.
+# https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+
+name = "fortune-master"
+pages_build_output_dir = "./build/web"
+compatibility_date = "2026-07-01"
+
+# Public (non-sensitive) build-time variables.
+# Sensitive values (SUPABASE_ANON_KEY for client, LLM_API_KEY for Edge Functions) MUST be
+# set in Cloudflare Pages dashboard → Settings → Environment variables, never here.
+# SUPABASE_URL is duplicated between this file and env.dart to make local dev work
+# without `--dart-define`; the dashboard value wins at build time.
+[vars]
+SUPABASE_URL = "https://xjvoqpijrpjmgqkqwhqd.supabase.co"
+
+# ----- Manual deploy workflow -----
+# Build locally:
+#   flutter build web --release --no-tree-shake-icons \
+#     --dart-define=SUPABASE_URL=https://xjvoqpijrpjmgqkqwhqd.supabase.co \
+#     --dart-define=SUPABASE_ANON_KEY=<anon_key>
+# Then deploy:
+#   wrangler pages deploy build/web --project-name=fortune-master --branch=main
+#
+# First-time setup:
+#   wrangler login
+#   wrangler pages project create fortune-master --production-branch=main

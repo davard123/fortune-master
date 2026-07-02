@@ -94,5 +94,30 @@
   "settingsTheme": "Theme",
   "settingsThemeLight": "Light",
   "settingsThemeDark": "Dark",
-  "settingsThemeSystem": "Follow System"
+  "settingsThemeSystem": "Follow System",
+
+  "tarotFormTitle": "Tarot Reading",
+  "tarotSpreadLabel": "Spread",
+  "tarotSpreadSingle": "Single Card",
+  "tarotSpreadThree": "Three Cards · Time Flow",
+  "tarotSpreadCeltic": "Celtic Cross",
+  "tarotQuestionLabel": "Your question (optional)",
+  "tarotQuestionHint": "Hold a question in your heart, then draw the cards…",
+  "tarotCardUpright": "Upright",
+  "tarotCardReversed": "Reversed",
+  "tarotCardMeaning": "Meaning",
+  "tarotCardKeywords": "Keywords",
+  "tarotCardPosition": "Position",
+  "tarotResultTitle": "Your Reading",
+  "tarotDrawAgain": "Draw Again",
+
+  "interpretLoading": "Generating interpretation…",
+  "interpretDisclaimer": "For entertainment only. Not a substitute for professional advice.",
+  "interpretEmpty": "The model returned an empty interpretation. Please try again.",
+  "interpretRetry": "Retry Interpretation",
+  "interpretUpgradeToDetailed": "Get a Detailed Reading",
+
+  "legalPrivacy": "Privacy",
+  "legalTerms": "Terms",
+  "legalCookies": "Cookies"
 }

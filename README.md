@@ -103,6 +103,90 @@ flutter run -d chrome --web-port=8080 \
 - **简体中文**：中西算命大全
 - **符文**：暂不支持，必要时用 OpenCC 自动转繁体（不做独立翻译）
 
+## 🌐 部署 (Cloudflare Pages + Supabase Edge Functions)
+
+### A. Cloudflare Pages（前端）
+
+**方式 1（推荐）：Git 集成**
+
+1. Cloudflare Dashboard → Workers & Pages → Create → Pages → Connect to Git → 选 `davard123/fortune-master`
+2. **Build settings**:
+   - Build command:
+     ```
+     flutter pub get && flutter build web --release --no-tree-shake-icons --dart-define=SUPABASE_URL=https://xjvoqpijrpjmgqkqwhqd.supabase.co --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
+     ```
+   - Build output directory: `build/web`
+   - Root directory: `/` (项目根)
+3. **Environment variables** (Settings → Environment variables):
+   | Variable | Production | Preview |
+   |---|---|---|
+   | `SUPABASE_URL` | `https://xjvoqpijrpjmgqkqwhqd.supabase.co` | 同 |
+   | `SUPABASE_ANON_KEY` | (Dashboard 设置, **不在 README 写**) | 同 |
+4. 首次 push 后自动部署 → 域名 `https://fortune-master.pages.dev`
+
+**方式 2（手动）**:
+
+```bash
+npm i -g wrangler
+wrangler login
+wrangler pages project create fortune-master --production-branch=main
+
+flutter build web --release --no-tree-shake-icons \
+  --dart-define=SUPABASE_URL=https://xjvoqpijrpjmgqkqwhqd.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=<anon_key>
+
+wrangler pages deploy build/web --project-name=fortune-master --branch=main
+```
+
+**关键文件**（已包含）：
+- `_headers` —— 安全头部 (CSP / HSTS / X-Frame-Options / Permissions-Policy)
+- `_redirects` —— `/privacy` `/terms` `/cookies` 301
+- `wrangler.toml` —— Pages 项目配置
+
+### B. Supabase Edge Functions（后端）
+
+4 个函数: `chart-bazi`, `chart-tarot`, `chart-qimen`, `interpret` (2026-07-01 实装)
+
+部署:
+
+```bash
+supabase login  # 首次
+supabase link --project-ref xjvoqpijrpjmgqkqwhqd
+supabase functions deploy chart-bazi
+supabase functions deploy chart-tarot
+supabase functions deploy chart-qimen
+supabase functions deploy interpret
+```
+
+环境变量 (Supabase 端, 不是 Cloudflare 端):
+
+```bash
+supabase secrets set --project-ref xjvoqpijrpjmgqkqwhqd \
+  FREELLMAPI_URL=http://localhost:3001/v1 \
+  FREELLMAPI_KEY=<freellmapi_key> \
+  IS_PUBLIC_RELEASE=false
+```
+
+**生产切换到 DeepSeek**: `supabase secrets unset FREELLMAPI_*` 然后 `supabase secrets set LLM_BASE_URL=https://api.deepseek.com/v1 LLM_API_KEY=<deepseek_key> IS_PUBLIC_RELEASE=true` — 业务代码 0 改动.
+
+### C. 自检
+
+部署后跑:
+
+```bash
+# 函数
+curl -X POST "$SUPABASE_URL/functions/v1/chart-bazi" \
+  -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"birthYear":1990,"birthMonth":5,"birthDay":15,"birthHour":14,"gender":"male"}'
+
+# 解读 (需先设 LLM key)
+curl -X POST "$SUPABASE_URL/functions/v1/interpret" \
+  -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"system":"bazi","tier":"brief","locale":"en","chart":{"dayMaster":"Geng"}}'
+```
+
 ## 📜 License
 
 MIT — 详见 [LICENSE](LICENSE)

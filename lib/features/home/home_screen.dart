@@ -3,6 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+/// 部署站点基址 (Cloudflare Pages). 改域名只需改这里一处.
+const String _kSiteBaseUrl = 'https://fortune-master.pages.dev';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -67,18 +71,58 @@ class HomeScreen extends StatelessWidget {
       bottomNavigationBar: BottomAppBar(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              TextButton.icon(
-                onPressed: () => context.push('/community'),
-                icon: const Icon(Icons.forum_outlined),
-                label: Text(l10n.menuCommunity),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton.icon(
+                    onPressed: () => context.push('/community'),
+                    icon: const Icon(Icons.forum_outlined),
+                    label: Text(l10n.menuCommunity),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => context.push('/paywall'),
+                    icon: const Icon(Icons.workspace_premium_outlined),
+                    label: Text(l10n.actionSubscribe),
+                  ),
+                ],
               ),
-              TextButton.icon(
-                onPressed: () => context.push('/paywall'),
-                icon: const Icon(Icons.workspace_premium_outlined),
-                label: Text(l10n.actionSubscribe),
+              const Divider(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: const Size(0, 32),
+                    ),
+                    onPressed: () => _openLegal(context, 'privacy'),
+                    child: Text(l10n.legalPrivacy,
+                        style: Theme.of(context).textTheme.bodySmall),
+                  ),
+                  Text('·', style: Theme.of(context).textTheme.bodySmall),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: const Size(0, 32),
+                    ),
+                    onPressed: () => _openLegal(context, 'terms'),
+                    child: Text(l10n.legalTerms,
+                        style: Theme.of(context).textTheme.bodySmall),
+                  ),
+                  Text('·', style: Theme.of(context).textTheme.bodySmall),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: const Size(0, 32),
+                    ),
+                    onPressed: () => _openLegal(context, 'cookies'),
+                    child: Text(l10n.legalCookies,
+                        style: Theme.of(context).textTheme.bodySmall),
+                  ),
+                ],
               ),
             ],
           ),
@@ -95,6 +139,27 @@ class _SystemItem {
   final IconData icon;
   final Color color;
   _SystemItem(this.route, this.title, this.desc, this.icon, this.color);
+}
+
+/// 打开隐私 / 条款 / Cookie 静态页. 云端部署后 URL 形如:
+///   https://fortune-master.pages.dev/privacy/
+/// url_launcher 调用新 tab, 不离开 app.
+Future<void> _openLegal(BuildContext context, String slug) async {
+  final uri = Uri.parse('$_kSiteBaseUrl/$slug/');
+  try {
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!ok && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(uri.toString())),
+      );
+    }
+  } catch (_) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(uri.toString())),
+      );
+    }
+  }
 }
 
 class _SystemCard extends StatelessWidget {
