@@ -16,10 +16,14 @@ docs/geo-seo-launch/
 │   ├── medium-publications.md ← 3 个 Medium Publication 描述
 │   └── quora-profiles.md      ← 3 个 Quora Profile + Space 文案
 │
-├── 02-articles/               ← 12 篇 SEO/GEO 主文章
+├── 02-articles/               ← 21 篇 SEO/GEO 主文章（每站 7 篇）
 │   ├── loaninca-articles.md   ← 4 篇 loaninca 主题
 │   ├── rentalinca-articles.md ← 4 篇 rentalinca 主题
-│   └── fopusha-articles.md    ← 4 篇 fopusha 主题
+│   ├── fopusha-articles.md    ← 4 篇 fopusha 主题
+│   └── more/                  ← 第二轮 9 篇（每站 3 篇覆盖长尾）
+│       ├── loaninca-more.md
+│       ├── rentalinca-more.md
+│       └── fopusha-more.md
 │
 ├── 03-linkedin/               ← LinkedIn 长帖
 │   └── linkedin-posts.md      ← 3 篇 LinkedIn 长帖
@@ -33,9 +37,18 @@ docs/geo-seo-launch/
 ├── 06-execution/              ← 执行日历
 │   └── execution-calendar.md  ← W1-W4 详细日程
 │
-└── 07-tracking/               ← 跟踪与检查
-    ├── kpi-tracking.md        ← KPI 数据表 + 监测 SOP
-    └── pre-publish-checklist.md ← 发布前最后检查清单
+├── 07-tracking/               ← 跟踪与检查
+│   ├── kpi-tracking.md        ← KPI 数据表 + 复盘 SOP
+│   └── pre-publish-checklist.md ← 发布前最后检查清单
+│
+├── 08-site-assets/            ← 主站 SEO 基础设施
+│   ├── about-pages.md         ← 3 个站 About/Contact/Disclaimer/Privacy/Terms 文案
+│   ├── schema-markup.md       ← Article/FAQ/Person/Organization JSON-LD 模板
+│   ├── sitemap-robots-rss.md  ← sitemap.xml/robots.txt/RSS 模板 + UTM 标准化
+│   └── cta-prompts-templates.md ← 9 套 CTA 文案 + 50 条 GEO prompt 测试库 + Reddit 养号 SOP
+│
+└── 09-publishing/             ← 每日发布检查清单
+    └── publish-checklist-today.md ← 速查表（每周一天一页纸）
 ```
 
 ---
