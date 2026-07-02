@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>紫微斗數 · 中西算命大全</title>
+<meta name="description" content="紫微斗數 —— 十四主星分佈十二宮, 看命宮、財帛宮、官祿宮等人事主題。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+
+<nav>
+  <a class="brand" href="/landing/">
+    <div class="brand-seal">卜</div>
+    <div class="brand-name">中西算命大全<span class="en">FORTUNE MASTER</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="/landing/#arts">← 術數一覽</a>
+    <a class="app-entry" href="/#/ziwei">立即排盤</a>
+  </div>
+</nav>
+
+<div class="crumb">
+  <a href="/landing/">首頁</a><span class="sep">/</span>
+  <a href="/landing/#arts">術數一覽</a><span class="sep">/</span>
+  紫微斗數
+</div>
+
+<section class="art-hero">
+  <div class="emblem-lg" id="emblem"></div>
+  <h1>紫微斗數</h1>
+  <div class="en-sub">ZI WEI DOU SHU · PURPLE STAR ASTROLOGY</div>
+  <p class="art-quote">紫微天府同宮, 十四主星分佈十二宮, 命宮、財帛、官祿、夫妻, 一盤盡覽人生主題。</p>
+</section>
+
+<article class="art-body">
+  <h2>何為紫微斗數</h2>
+  <p>紫微斗數是源自宋代的道家命理, 以紫微星 (北極星) 為主, 將十四顆主星 (紫微、天機、太陽、武曲、天同、廉貞、天府、太陰、貪狼、巨門、天相、天梁、七殺、破軍) 排入命、身、兄弟、夫妻、子女、財帛、疾厄、遷徙、交友、官祿、田宅、福德、父母共十二宮位, 每一宮位對應人生不同主題。</p>
+  <p>不同於八字側重日主之平衡, 紫微斗數以星情組合 (廟陷、利害、四化飛星) 直觀呈現命主氣質、人生節奏與人際互動, 重視「格局」與「星曜對待」, 解讀上更細膩多元。</p>
+
+  <h2>適用場景</h2>
+  <ul>
+    <li>性格氣質分析與自我認知</li>
+    <li>事業財運方向、適合行業</li>
+    <li>感情婚姻契合與夫妻宮解讀</li>
+    <li>大限流年走勢 (每十年一運)</li>
+  </ul>
+
+  <h2>排盤要素</h2>
+  <ul>
+    <li>出生年月日時 (農曆或公曆皆可)</li>
+    <li>性別 (影響大限順逆)</li>
+    <li>出生地 (用於真太陽時與時區換算)</li>
+  </ul>
+
+  <h2>本服務能做什麼</h2>
+  <p>系統自動排出命盤圖, 標註主星廟陷、四化飛星 (化祿、化權、化科、化忌), 並由 AI 生成「命宮、財帛、官祿、夫妻」等核心宮位解讀。命主可保存多份盤面 (自己、家人) 並對比分析, 免費版提供簡明解讀, 訂閱版提供深度報告。</p>
+  <p>範例排盤請見 <a href="../demo.html">命盤示例</a>。</p>
+
+  <div class="cta-banner">
+    <p>準備好解讀自己的紫微命盤了嗎？</p>
+    <a href="/#/ziwei">開始排盤 →</a>
+  </div>
+</article>
+
+<footer>
+  僅供娛樂與文化體驗 · 不構成任何醫療、法律、投資建議<br>
+  <span class="en">FOR ENTERTAINMENT PURPOSES ONLY · FORTUNE MASTER © 2026</span>
+  <div class="legal-links">
+    <a href="/privacy/">隱私政策</a>
+    <a href="/terms/">服務條款</a>
+    <a href="/cookies/">Cookie 通知</a>
+  </div>
+</footer>
+
+<script src="../landing.js"></script>
+<script>
+  const card = (window.FORTUNE_CARDS || []).find(c => c.slug === 'ziwei');
+  if (card) {
+    document.getElementById('emblem').innerHTML = `<svg viewBox="0 0 74 74">${card.svg}</svg>`;
+  }
+</script>
+</body>
+</html>

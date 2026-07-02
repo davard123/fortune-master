@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>梅花易數 · 中西算命大全</title>
+<meta name="description" content="梅花易數 —— 觸機起卦, 體用生剋, 數起於心而應於物。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+
+<nav>
+  <a class="brand" href="/landing/">
+    <div class="brand-seal">卜</div>
+    <div class="brand-name">中西算命大全<span class="en">FORTUNE MASTER</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="/landing/#arts">← 術數一覽</a>
+    <a class="app-entry" href="/#/meihua">立即排盤</a>
+  </div>
+</nav>
+
+<div class="crumb">
+  <a href="/landing/">首頁</a><span class="sep">/</span>
+  <a href="/landing/#arts">術數一覽</a><span class="sep">/</span>
+  梅花易數
+</div>
+
+<section class="art-hero">
+  <div class="emblem-lg" id="emblem"></div>
+  <h1>梅花易數</h1>
+  <div class="en-sub">PLUM BLOSSOM NUMEROLOGY</div>
+  <p class="art-quote">耳聞目見, 一念之間皆可成卦, 體用比應即知吉凶。</p>
+</section>
+
+<article class="art-body">
+  <h2>何為梅花易數</h2>
+  <p>梅花易數由宋代邵雍 (邵康節) 創立, 為「心易」一脈, 主張萬物皆數, 隨時隨地皆可起卦 — 見一物、聽一聲、記一時辰, 皆可化為卦象。起卦後分「體卦」與「用卦」, 觀二者生剋比和之關係, 直斷吉凶, 不必搖錢。</p>
+  <p>梅花易數的精髓在於「感」字 —— 強調起卦者心念純淨, 方能感通天地。其解卦不拘成法, 靈活運用五行生剋、卦象意象 (如乾為天、坤為地、震為雷), 講究「一念之機即成卦, 體用生剋即知斷」。</p>
+
+  <h2>適用場景</h2>
+  <ul>
+    <li>隨機事件的快速解讀 (路遇、偶得)</li>
+    <li>投資短線決策的即時判斷</li>
+    <li>偶然現象的吉凶提示</li>
+    <li>學習易理、培養象感的入門之選</li>
+  </ul>
+
+  <h2>排盤要素</h2>
+  <ul>
+    <li>起卦方式 (時間起卦 / 數字起卦 / 物象起卦)</li>
+    <li>起卦瞬間的時空資訊 (系統自動捕捉)</li>
+    <li>可選: 心中所念之事 (有助 AI 結合情境解讀)</li>
+  </ul>
+
+  <h2>本服務能做什麼</h2>
+  <p>系統記錄起卦時空, 自動排卦、計算動爻、分析體用生剋, 並由 AI 給出直斷式解讀。適合追求速度與即時感的用戶, 也適合易經初學者作為練習工具。注意: 梅花易數對「心念」敏感, 建議起卦前靜心片刻。</p>
+  <p>範例排盤請見 <a href="../demo.html">命盤示例</a>。</p>
+
+  <div class="cta-banner">
+    <p>準備好讓一念成卦了嗎？</p>
+    <a href="/#/meihua">開始排盤 →</a>
+  </div>
+</article>
+
+<footer>
+  僅供娛樂與文化體驗 · 不構成任何醫療、法律、投資建議<br>
+  <span class="en">FOR ENTERTAINMENT PURPOSES ONLY · FORTUNE MASTER © 2026</span>
+  <div class="legal-links">
+    <a href="/privacy/">隱私政策</a>
+    <a href="/terms/">服務條款</a>
+    <a href="/cookies/">Cookie 通知</a>
+  </div>
+</footer>
+
+<script src="../landing.js"></script>
+<script>
+  const card = (window.FORTUNE_CARDS || []).find(c => c.slug === 'meihua');
+  if (card) {
+    document.getElementById('emblem').innerHTML = `<svg viewBox="0 0 74 74">${card.svg}</svg>`;
+  }
+</script>
+</body>
+</html>

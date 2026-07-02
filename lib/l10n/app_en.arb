@@ -87,6 +87,8 @@
   "menuCommunity": "Community",
   "menuProfile": "Profile",
   "menuSettings": "Settings",
+  "menuLanding": "Explore",
+  "menuLandingTooltip": "About the eight arts",
 
   "settingsLanguage": "Language",
   "settingsLanguageEN": "English",

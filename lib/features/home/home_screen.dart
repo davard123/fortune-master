@@ -30,6 +30,11 @@ class HomeScreen extends StatelessWidget {
         title: Text(l10n.appName),
         actions: [
           IconButton(
+            icon: const Icon(Icons.auto_stories_outlined),
+            tooltip: l10n.menuLandingTooltip,
+            onPressed: _openLanding,
+          ),
+          IconButton(
             icon: const Icon(Icons.person_outline),
             tooltip: l10n.menuProfile,
             onPressed: () => context.push('/profile'),
@@ -160,6 +165,13 @@ Future<void> _openLegal(BuildContext context, String slug) async {
       );
     }
   }
+}
+
+/// 打开八门术数介绍页 (Claude Design 营销页, 部署后为 /landing/).
+/// 走 url_launcher, 新 tab, 不离开 app 主流程.
+Future<void> _openLanding() async {
+  final uri = Uri.parse('$_kSiteBaseUrl/landing/');
+  await launchUrl(uri, mode: LaunchMode.externalApplication);
 }
 
 class _SystemCard extends StatelessWidget {

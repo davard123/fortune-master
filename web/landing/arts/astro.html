@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>西方占星 · 中西算命大全</title>
+<meta name="description" content="西方占星 —— 太陽、月亮、上升, 十大行星落十二宮, 你的宇宙藍圖。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+
+<nav>
+  <a class="brand" href="/landing/">
+    <div class="brand-seal">卜</div>
+    <div class="brand-name">中西算命大全<span class="en">FORTUNE MASTER</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="/landing/#arts">← 術數一覽</a>
+    <a class="app-entry" href="/#/astro">立即排盤</a>
+  </div>
+</nav>
+
+<div class="crumb">
+  <a href="/landing/">首頁</a><span class="sep">/</span>
+  <a href="/landing/#arts">術數一覽</a><span class="sep">/</span>
+  西方占星
+</div>
+
+<section class="art-hero">
+  <div class="emblem-lg" id="emblem"></div>
+  <h1>西方占星</h1>
+  <div class="en-sub">WESTERN ASTROLOGY</div>
+  <p class="art-quote">你是宇宙的中心, 十大行星於你出生時的方位, 構成獨一無二的命盤。</p>
+</section>
+
+<article class="art-body">
+  <h2>何為西方占星</h2>
+  <p>西方占星以你出生瞬間、從地球觀測的行星位置為基礎, 繪製本命盤 (Natal Chart)。核心元素包括: 星座 (行星所在的黃道十二宮, 反映表達方式)、宮位 (從上升點劃分的十二個生活領域)、相位 (行星間的 0°-180° 角度, 反映能量互動)。太陽代表自我、月亮代表情緒、上升代表外在人格。</p>
+  <p>行星包含太陽、月亮、水星、金星、火星、木星、土星、天王星、海王星、冥王星 (現代占星) 與北交點。相位主要分為合相 (0°)、六分 (60°)、四分 (90°)、三分 (120°)、對分 (180°), 分別代表融合、機會、挑戰、和諧、張力。本服務使用 Swiss Ephemeris 高精度計算。</p>
+
+  <h2>適用場景</h2>
+  <ul>
+    <li>自我認知與人格整合</li>
+    <li>關係合盤 (兩人本命盤對照)</li>
+    <li>行運 (Transit) 流年分析</li>
+    <li>擇時 (Electional Astrology)</li>
+  </ul>
+
+  <h2>排盤要素</h2>
+  <ul>
+    <li>出生年月日時 (精確到分鐘, 影響月亮與上升位置)</li>
+    <li>出生城市 (用於經緯度與時區)</li>
+    <li>可選: 是否使用真太陽時 (True Solar Time)</li>
+  </ul>
+
+  <h2>本服務能做什麼</h2>
+  <p>系統使用 Swiss Ephemeris 計算行星位置, 輸出完整本命盤 (含行星、星座、宮位、相位表), 並由 AI 給出整體解讀與每顆行星過境 (Transit) 對個人的影響。注意: 為保護隱私, 我們只收集城市級位置, 不存儲精確經緯度。免費版給太陽月亮上升解讀, 訂閱版給全盤深度分析。</p>
+  <p>範例排盤請見 <a href="../demo.html">命盤示例</a>。</p>
+
+  <div class="cta-banner">
+    <p>準備好讀懂自己的星圖了嗎？</p>
+    <a href="/#/astro">開始排盤 →</a>
+  </div>
+</article>
+
+<footer>
+  僅供娛樂與文化體驗 · 不構成任何醫療、法律、投資建議<br>
+  <span class="en">FOR ENTERTAINMENT PURPOSES ONLY · FORTUNE MASTER © 2026</span>
+  <div class="legal-links">
+    <a href="/privacy/">隱私政策</a>
+    <a href="/terms/">服務條款</a>
+    <a href="/cookies/">Cookie 通知</a>
+  </div>
+</footer>
+
+<script src="../landing.js"></script>
+<script>
+  const card = (window.FORTUNE_CARDS || []).find(c => c.slug === 'astro');
+  if (card) {
+    document.getElementById('emblem').innerHTML = `<svg viewBox="0 0 74 74">${card.svg}</svg>`;
+  }
+</script>
+</body>
+</html>

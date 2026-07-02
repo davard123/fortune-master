@@ -4,6 +4,8 @@
 # Note: explicit rule ordering — most specific first.
 # No /* SPA fallback here: Cloudflare Pages automatically serves /index.html for any
 # path that doesn't match a static file (so /bazi, /tarot, /profile all hit the SPA).
+# But the rules below MUST come first to prevent SPA fallback from intercepting
+# /landing/ and the legal pages (which need static HTML).
 
 /privacy       /privacy/       301
 /privacy.html  /privacy/       301
@@ -11,3 +13,5 @@
 /terms.html    /terms/         301
 /cookies       /cookies/       301
 /cookies.html  /cookies/       301
+/landing       /landing/       301
+/landing.html  /landing/       301

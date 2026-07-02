@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>八字 · 中西算命大全</title>
+<meta name="description" content="四柱八字排盤 —— 以年、月、日、時四柱天干地支，推演命格、五行、十神、大運流年。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+
+<nav>
+  <a class="brand" href="/landing/">
+    <div class="brand-seal">卜</div>
+    <div class="brand-name">中西算命大全<span class="en">FORTUNE MASTER</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="/landing/#arts">← 術數一覽</a>
+    <a class="app-entry" href="/#/bazi">立即排盤</a>
+  </div>
+</nav>
+
+<div class="crumb">
+  <a href="/landing/">首頁</a><span class="sep">/</span>
+  <a href="/landing/#arts">術數一覽</a><span class="sep">/</span>
+  八字
+</div>
+
+<section class="art-hero">
+  <div class="emblem-lg" id="emblem"></div>
+  <h1>八字</h1>
+  <div class="en-sub">FOUR PILLARS OF DESTINY · BAZI</div>
+  <p class="art-quote">以年、月、日、時四柱天干地支共八字，推演一生格局起伏、五行強弱、十神喜忌、大運流年。</p>
+</section>
+
+<article class="art-body">
+  <h2>何為八字</h2>
+  <p>一個人出生的年、月、日、時各以天干地支兩個字表示，合為八個字，故稱「八字」。四柱分別對應祖上、父母、自我、子女，亦主人生不同階段之氣場。</p>
+  <p>八字命理是東亞流傳最久的命理系統之一，融合陰陽、五行、十神、藏干、本氣、中氣、餘氣、大運流年等概念，重在觀察「日主」之強弱、喜忌與趨向。</p>
+
+  <h2>適用場景</h2>
+  <ul>
+    <li>瞭解自身性格傾向、潛能與盲點</li>
+    <li>擇日、起名、合婚、求財方向</li>
+    <li>大運流年趨吉避凶，重要節點決策</li>
+    <li>五行喜用於中醫養生、居家佈局</li>
+  </ul>
+
+  <h2>排盤要素</h2>
+  <ul>
+    <li>公曆 / 農曆出生日期（真太陽時已自動校正）</li>
+    <li>出生時辰（精確到兩小時）</li>
+    <li>出生城市（用於時區與真太陽時換算）</li>
+    <li>性別（影響大運順逆排法）</li>
+  </ul>
+
+  <h2>本服務能做什麼</h2>
+  <p>提交出生資料後，系統即時排盤，輸出四柱、十神、地支藏干、五行強弱、神煞，並由 AI 生成「性格 / 事業 / 財運 / 感情 / 健康」五段解讀。免費版提供簡明解讀，訂閱版提供深度報告。</p>
+  <p>範例排盤請見 <a href="../demo.html">命盤示例</a>。</p>
+
+  <div class="cta-banner">
+    <p>準備好探索自己的八字了嗎？</p>
+    <a href="/#/bazi">開始排盤 →</a>
+  </div>
+</article>
+
+<footer>
+  僅供娛樂與文化體驗 · 不構成任何醫療、法律、投資建議<br>
+  <span class="en">FOR ENTERTAINMENT PURPOSES ONLY · FORTUNE MASTER © 2026</span>
+  <div class="legal-links">
+    <a href="/privacy/">隱私政策</a>
+    <a href="/terms/">服務條款</a>
+    <a href="/cookies/">Cookie 通知</a>
+  </div>
+</footer>
+
+<script src="../landing.js"></script>
+<script>
+  // 渲染本门 emblem (复用主页数据)
+  const card = (window.FORTUNE_CARDS || []).find(c => c.slug === 'bazi');
+  if (card) {
+    document.getElementById('emblem').innerHTML = `<svg viewBox="0 0 74 74">${card.svg}</svg>`;
+  }
+</script>
+</body>
+</html>

@@ -86,6 +86,8 @@
   "menuCommunity": "社区",
   "menuProfile": "我的",
   "menuSettings": "设置",
+  "menuLanding": "了解八门",
+  "menuLandingTooltip": "查看八门术数介绍",
 
   "settingsLanguage": "语言",
   "settingsLanguageEN": "English",

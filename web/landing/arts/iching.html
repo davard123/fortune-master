@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>周易六爻 · 中西算命大全</title>
+<meta name="description" content="周易六爻 —— 三枚銅錢起卦, 六爻動靜之間窺見事機走向。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+
+<nav>
+  <a class="brand" href="/landing/">
+    <div class="brand-seal">卜</div>
+    <div class="brand-name">中西算命大全<span class="en">FORTUNE MASTER</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="/landing/#arts">← 術數一覽</a>
+    <a class="app-entry" href="/#/iching">立即排盤</a>
+  </div>
+</nav>
+
+<div class="crumb">
+  <a href="/landing/">首頁</a><span class="sep">/</span>
+  <a href="/landing/#arts">術數一覽</a><span class="sep">/</span>
+  周易六爻
+</div>
+
+<section class="art-hero">
+  <div class="emblem-lg" id="emblem"></div>
+  <h1>周易六爻</h1>
+  <div class="en-sub">I CHING · SIX LINES</div>
+  <p class="art-quote">三枚銅錢起卦, 老陰老陽動變, 觀本卦之體, 察之卦之用, 決事於未行。</p>
+</section>
+
+<article class="art-body">
+  <h2>何為周易六爻</h2>
+  <p>周易六爻又稱「火珠林」, 是《易經》的實戰占卜體系。占者以三枚銅錢搖六次, 每次得一爻 (老陰、少陽、少陰、老陽), 從下而上組成六爻卦象。爻之動靜決定本卦與之卦, 配合世爻、應爻、用神、忌神, 推演所占之事的成敗、應期、趨避。</p>
+  <p>六爻的精要在於「動爻」—— 老陰老陽為動, 動則變, 由本卦化為之卦, 兩卦對比方見事機走向。世爻代表自己, 應爻代表對方或所問之事, 用神為所求之物的代表 (如問財以妻財爻為用神)。</p>
+
+  <h2>適用場景</h2>
+  <ul>
+    <li>問事吉凶 (求財、升遷、訴訟、感情)</li>
+    <li>擇時擇日、判斷應期</li>
+    <li>趨吉避凶策略與行動建議</li>
+    <li>學習易經象數體系的入門</li>
+  </ul>
+
+  <h2>排盤要素</h2>
+  <ul>
+    <li>所問之事 (例如「下半年是否適合換工作」)</li>
+    <li>起卦時間 (系統預設為當下時間)</li>
+    <li>可選: 數字起卦或時間起卦</li>
+  </ul>
+
+  <h2>本服務能做什麼</h2>
+  <p>系統自動模擬搖卦, 輸出本卦、之卦、世應爻位、用神分析, 並由 AI 解讀卦象, 給出可行建議。免費版給關鍵詞與方向, 訂閱版給完整解讀 (含世應生剋、動爻變化、應期推測)。</p>
+  <p>範例排盤請見 <a href="../demo.html">命盤示例</a>。</p>
+
+  <div class="cta-banner">
+    <p>準備好問天問事了嗎？</p>
+    <a href="/#/iching">開始排盤 →</a>
+  </div>
+</article>
+
+<footer>
+  僅供娛樂與文化體驗 · 不構成任何醫療、法律、投資建議<br>
+  <span class="en">FOR ENTERTAINMENT PURPOSES ONLY · FORTUNE MASTER © 2026</span>
+  <div class="legal-links">
+    <a href="/privacy/">隱私政策</a>
+    <a href="/terms/">服務條款</a>
+    <a href="/cookies/">Cookie 通知</a>
+  </div>
+</footer>
+
+<script src="../landing.js"></script>
+<script>
+  const card = (window.FORTUNE_CARDS || []).find(c => c.slug === 'iching');
+  if (card) {
+    document.getElementById('emblem').innerHTML = `<svg viewBox="0 0 74 74">${card.svg}</svg>`;
+  }
+</script>
+</body>
+</html>

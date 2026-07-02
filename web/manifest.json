@@ -1,11 +1,11 @@
 {
-    "name": "fortune_master",
-    "short_name": "fortune_master",
+    "name": "中西算命大全 · Fortune Master",
+    "short_name": "Fortune Master",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#efe4cb",
+    "theme_color": "#9a742e",
+    "description": "八字 · 紫微 · 周易 · 塔羅 · 占星 —— 中西八門術數, 一站排盤, AI 深度解讀。",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

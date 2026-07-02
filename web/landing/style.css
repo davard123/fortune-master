@@ -1,0 +1,948 @@
+/* web/landing/style.css
+   抽出 Claude Design 营销页设计系统, 墨金主题.
+   服务: /landing/ (hero) / /landing/arts/*.html (8 门) / /landing/demo.html (排盘示例)
+   字体: Cinzel (英文衬线) / Ma Shan Zheng (毛笔楷书) / Noto Serif SC (中文衬线) / ZCOOL XiaoWei (中文标题)
+   配色: 宣纸底 (#efe4cb) + 墨黑 (#3d3122) + 金 (#9a742e) + 朱砂 (#b43a3a) + 玉 (#4a7a64)
+*/
+
+:root {
+  --ink: #efe4cb;
+  --ink-2: #f6eeda;
+  --ink-3: #fbf5e6;
+  --gold: #9a742e;
+  --gold-bright: #7d5a1c;
+  --gold-dim: #b3924f;
+  --cinnabar: #b43a3a;
+  --jade: #4a7a64;
+  --moon: #3d3122;
+  --moon-dim: #6f5f45;
+  --moon-faint: #98876a;
+  --hairline: rgba(154, 116, 46, 0.38);
+  --hairline-soft: rgba(154, 116, 46, 0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--ink);
+  color: var(--moon);
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  line-height: 1.7;
+}
+
+::selection {
+  background: var(--gold-dim);
+  color: #fff;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 70% 55% at 50% 0%,
+    rgba(213, 178, 106, 0.28),
+    transparent 70%
+  );
+}
+
+#sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.en {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.14em;
+}
+
+.frame {
+  position: relative;
+  z-index: 1;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+h1, h2, h3 {
+  font-weight: 400;
+}
+
+/* ---------- top bar ---------- */
+nav {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 26px 32px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brand-seal {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'ZCOOL XiaoWei', serif;
+  font-size: 19px;
+  color: var(--gold);
+  position: relative;
+}
+
+.brand-seal::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--hairline);
+  border-radius: 50%;
+}
+
+.brand-name {
+  font-size: 15px;
+  letter-spacing: 0.32em;
+  color: var(--moon);
+}
+
+.brand-name .en {
+  display: block;
+  font-size: 10px;
+  color: var(--gold);
+  margin-top: 2px;
+  letter-spacing: 0.3em;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  font-size: 13px;
+  color: var(--moon-dim);
+}
+
+.nav-right a {
+  color: var(--moon-dim);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.nav-right a:hover {
+  color: var(--gold-bright);
+}
+
+.lang-switch,
+.app-entry {
+  border: 1px solid var(--hairline);
+  padding: 5px 14px;
+  border-radius: 2px;
+  cursor: pointer;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  transition: all 0.3s;
+  text-decoration: none;
+  color: var(--gold);
+}
+
+.lang-switch:hover,
+.app-entry:hover {
+  border-color: var(--gold);
+  background: rgba(154, 116, 46, 0.08);
+  color: var(--gold-bright);
+}
+
+.app-entry {
+  color: var(--gold-bright);
+  border-color: var(--gold);
+}
+
+.test-badge {
+  font-size: 11px;
+  color: var(--jade);
+  border: 1px solid rgba(94, 140, 122, 0.4);
+  padding: 3px 10px;
+  border-radius: 2px;
+  letter-spacing: 0.1em;
+}
+
+/* ---------- hero ---------- */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px 80px;
+}
+
+.bagua-wrap {
+  position: relative;
+  width: 340px;
+  height: 340px;
+  margin-bottom: 8px;
+}
+
+.bagua-wrap svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.spin-slow {
+  animation: spin 120s linear infinite;
+  transform-origin: center;
+}
+
+.spin-rev {
+  animation: spinrev 90s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinrev {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.hero-title {
+  font-size: clamp(40px, 6.4vw, 68px);
+  letter-spacing: 0.24em;
+  text-indent: 0.24em;
+  font-family: 'Ma Shan Zheng', 'ZCOOL XiaoWei', serif;
+  color: var(--moon);
+  -webkit-text-stroke: 1.6px var(--moon);
+  paint-order: stroke fill;
+  margin-top: -170px;
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 0 26px rgba(239, 228, 203, 0.95),
+    0 0 46px rgba(239, 228, 203, 0.85);
+}
+
+.hero-sub-en {
+  font-size: clamp(13px, 1.6vw, 17px);
+  color: var(--gold);
+  margin-top: 18px;
+}
+
+.hero-desc {
+  margin-top: 26px;
+  font-size: 14px;
+  color: var(--moon-dim);
+  max-width: 520px;
+  letter-spacing: 0.08em;
+}
+
+.hero-cta {
+  margin-top: 44px;
+  display: inline-block;
+  border: 1px solid var(--gold);
+  color: var(--gold-bright);
+  padding: 14px 52px;
+  font-size: 14px;
+  letter-spacing: 0.4em;
+  text-indent: 0.4em;
+  text-decoration: none;
+  position: relative;
+  transition: all 0.4s;
+  background: linear-gradient(rgba(154, 116, 46, 0), rgba(154, 116, 46, 0));
+}
+
+.hero-cta:hover {
+  background: rgba(154, 116, 46, 0.1);
+  box-shadow: 0 0 30px rgba(154, 116, 46, 0.18);
+}
+
+.hero-cta::before,
+.hero-cta::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--gold);
+  transition: all 0.4s;
+}
+
+.hero-cta::before {
+  top: -4px;
+  left: -4px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.hero-cta::after {
+  bottom: -4px;
+  right: -4px;
+  border-left: none;
+  border-top: none;
+}
+
+.scroll-hint {
+  margin-top: 70px;
+  color: var(--moon-faint);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  animation: bob 2.6s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+}
+
+/* ---------- section heading ---------- */
+.sec-head {
+  text-align: center;
+  margin: 90px 0 54px;
+}
+
+.sec-head .zh {
+  font-size: 27px;
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
+  font-family: 'ZCOOL XiaoWei', serif;
+  -webkit-text-stroke: 0.7px var(--moon);
+  paint-order: stroke fill;
+}
+
+.sec-head .en {
+  display: block;
+  font-size: 11px;
+  color: var(--gold);
+  margin-top: 10px;
+}
+
+.sec-head .rule {
+  width: 180px;
+  height: 9px;
+  margin: 22px auto 0;
+  position: relative;
+}
+
+.sec-head .rule::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--gold-dim),
+    transparent
+  );
+}
+
+.sec-head .rule::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--gold);
+  background: var(--ink);
+}
+
+/* ---------- divination grid ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  padding-bottom: 30px;
+}
+
+.card {
+  position: relative;
+  background: var(--ink-2);
+  border: 1px solid var(--hairline-soft);
+  padding: 34px 26px 28px;
+  cursor: pointer;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.45s, background 0.45s;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid transparent;
+  transition: border-color 0.45s;
+  pointer-events: none;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  border-color: var(--hairline);
+  background: var(--ink-3);
+}
+
+.card:hover::before {
+  border-color: var(--hairline-soft);
+}
+
+.card .emblem {
+  width: 74px;
+  height: 74px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card .emblem svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.card:hover .emblem svg .glow-on-hover {
+  filter: drop-shadow(0 0 6px rgba(154, 116, 46, 0.55));
+}
+
+.card h3 {
+  font-size: 19px;
+  letter-spacing: 0.28em;
+  color: var(--moon);
+}
+
+.card .card-en {
+  font-size: 10px;
+  color: var(--gold);
+  margin-top: 5px;
+  display: block;
+}
+
+.card p {
+  font-size: 12.5px;
+  color: var(--moon-dim);
+  margin-top: 14px;
+  line-height: 1.8;
+}
+
+.card .go {
+  margin-top: 20px;
+  font-size: 11px;
+  color: var(--gold-dim);
+  letter-spacing: 0.2em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.3s, gap 0.3s;
+}
+
+.card:hover .go {
+  color: var(--gold-bright);
+  gap: 14px;
+}
+
+.card .go .line {
+  display: inline-block;
+  width: 26px;
+  height: 1px;
+  background: currentColor;
+}
+
+.card .hot {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-size: 10px;
+  color: var(--cinnabar);
+  border: 1px solid rgba(192, 72, 81, 0.5);
+  padding: 2px 8px;
+  letter-spacing: 0.15em;
+}
+
+/* ---------- bazi demo section ---------- */
+.demo {
+  margin: 60px 0 100px;
+  background: var(--ink-2);
+  border: 1px solid var(--hairline-soft);
+  padding: 56px 56px 60px;
+  position: relative;
+}
+
+.demo::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px solid var(--hairline-soft);
+  pointer-events: none;
+}
+
+.demo-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 44px;
+}
+
+.demo-head .t {
+  font-size: 21px;
+  letter-spacing: 0.3em;
+  font-family: 'ZCOOL XiaoWei', serif;
+  -webkit-text-stroke: 0.6px var(--moon);
+  paint-order: stroke fill;
+}
+
+.demo-head .t .en {
+  display: block;
+  font-size: 10px;
+  color: var(--gold);
+  margin-top: 6px;
+}
+
+.demo-head .meta {
+  font-size: 12px;
+  color: var(--moon-faint);
+}
+
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.pillar {
+  text-align: center;
+  padding: 26px 10px 22px;
+  background: linear-gradient(
+    180deg,
+    rgba(154, 116, 46, 0.08),
+    rgba(154, 116, 46, 0.02)
+  );
+  border: 1px solid var(--hairline-soft);
+  position: relative;
+}
+
+.pillar.day {
+  border-color: var(--gold-dim);
+  background: linear-gradient(
+    180deg,
+    rgba(154, 116, 46, 0.18),
+    rgba(154, 116, 46, 0.05)
+  );
+}
+
+.pillar .lab {
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.3em;
+  margin-bottom: 16px;
+}
+
+.pillar .gz {
+  font-family: 'ZCOOL XiaoWei', serif;
+  font-size: 44px;
+  line-height: 1.25;
+  color: var(--moon);
+}
+
+.pillar.day .gz {
+  color: var(--gold-bright);
+}
+
+.pillar .ss {
+  font-size: 11px;
+  color: var(--moon-faint);
+  margin-top: 12px;
+  letter-spacing: 0.1em;
+}
+
+.daymaster {
+  font-size: 12px;
+  color: var(--moon-dim);
+  margin-bottom: 40px;
+  letter-spacing: 0.12em;
+}
+
+.daymaster b {
+  color: var(--gold-bright);
+  font-weight: 500;
+}
+
+.wuxing {
+  margin-bottom: 44px;
+}
+
+.wuxing .wx-label {
+  font-size: 12px;
+  color: var(--gold);
+  letter-spacing: 0.25em;
+  margin-bottom: 18px;
+}
+
+.wx-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.wx-row .name {
+  width: 34px;
+  font-size: 14px;
+  font-family: 'ZCOOL XiaoWei', serif;
+}
+
+.wx-row .bar {
+  flex: 1;
+  height: 5px;
+  background: rgba(61, 49, 34, 0.1);
+  position: relative;
+}
+
+.wx-row .bar i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: block;
+}
+
+.wx-row .pct {
+  width: 40px;
+  text-align: right;
+  font-size: 11px;
+  color: var(--moon-dim);
+}
+
+.wx-metal i {
+  background: linear-gradient(90deg, #6e6e76, #a3a3ac);
+}
+
+.wx-fire i {
+  background: linear-gradient(90deg, #8c3a41, #c04851);
+}
+
+.wx-earth i {
+  background: linear-gradient(90deg, #8a6f3f, #b3924f);
+}
+
+.wx-wood i {
+  background: linear-gradient(90deg, #3f6b57, #5e8c7a);
+}
+
+.wx-water i {
+  background: linear-gradient(90deg, #2f4b6e, #4a76a8);
+}
+
+.reading .r-label {
+  font-size: 12px;
+  color: var(--gold);
+  letter-spacing: 0.25em;
+  margin-bottom: 22px;
+}
+
+.r-block {
+  border-left: 1px solid var(--gold-dim);
+  padding: 2px 0 2px 20px;
+  margin-bottom: 22px;
+}
+
+.r-block .r-t {
+  font-size: 14px;
+  color: var(--gold-bright);
+  letter-spacing: 0.2em;
+  margin-bottom: 6px;
+}
+
+.r-block .r-t .en {
+  font-size: 10px;
+  color: var(--gold-dim);
+  margin-left: 10px;
+  letter-spacing: 0.12em;
+}
+
+.r-block p {
+  font-size: 13.5px;
+  color: var(--moon-dim);
+  line-height: 2;
+}
+
+/* ---------- art detail page ---------- */
+.art-hero {
+  position: relative;
+  z-index: 1;
+  padding: 60px 24px 40px;
+  text-align: center;
+}
+
+.art-hero .emblem-lg {
+  width: 130px;
+  height: 130px;
+  margin: 0 auto 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.art-hero .emblem-lg svg {
+  width: 100%;
+  height: 100%;
+}
+
+.art-hero h1 {
+  font-family: 'ZCOOL XiaoWei', serif;
+  font-size: 42px;
+  letter-spacing: 0.4em;
+  text-indent: 0.4em;
+  color: var(--moon);
+  -webkit-text-stroke: 0.6px var(--moon);
+  paint-order: stroke fill;
+}
+
+.art-hero .en-sub {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.3em;
+}
+
+.art-hero .art-quote {
+  margin: 28px auto 0;
+  max-width: 600px;
+  font-size: 14px;
+  color: var(--moon-dim);
+  letter-spacing: 0.06em;
+  line-height: 1.9;
+}
+
+.art-body {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 30px 32px 80px;
+}
+
+.art-body h2 {
+  font-family: 'ZCOOL XiaoWei', serif;
+  font-size: 20px;
+  letter-spacing: 0.25em;
+  color: var(--gold-bright);
+  margin: 40px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+
+.art-body h2:first-child {
+  margin-top: 0;
+}
+
+.art-body p {
+  font-size: 14px;
+  color: var(--moon-dim);
+  line-height: 2;
+  margin-bottom: 14px;
+}
+
+.art-body ul {
+  list-style: none;
+  margin: 12px 0 20px 0;
+}
+
+.art-body ul li {
+  font-size: 13.5px;
+  color: var(--moon-dim);
+  line-height: 1.9;
+  padding: 4px 0 4px 22px;
+  position: relative;
+}
+
+.art-body ul li::before {
+  content: "◆";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  font-size: 9px;
+  color: var(--gold);
+}
+
+.cta-banner {
+  margin-top: 50px;
+  padding: 32px 24px;
+  text-align: center;
+  background: var(--ink-2);
+  border: 1px solid var(--hairline-soft);
+  position: relative;
+}
+
+.cta-banner::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid var(--hairline-soft);
+  pointer-events: none;
+}
+
+.cta-banner p {
+  font-size: 13.5px;
+  color: var(--moon-dim);
+  margin-bottom: 18px;
+  letter-spacing: 0.08em;
+}
+
+.cta-banner a {
+  display: inline-block;
+  border: 1px solid var(--gold);
+  color: var(--gold-bright);
+  padding: 12px 42px;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  text-decoration: none;
+  transition: all 0.4s;
+}
+
+.cta-banner a:hover {
+  background: rgba(154, 116, 46, 0.1);
+}
+
+/* ---------- breadcrumb ---------- */
+.crumb {
+  position: relative;
+  z-index: 1;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 18px 32px 0;
+  font-size: 12px;
+  color: var(--moon-faint);
+  letter-spacing: 0.1em;
+}
+
+.crumb a {
+  color: var(--gold-dim);
+  text-decoration: none;
+}
+
+.crumb a:hover {
+  color: var(--gold-bright);
+}
+
+.crumb .sep {
+  margin: 0 8px;
+  color: var(--moon-faint);
+}
+
+/* ---------- footer ---------- */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--hairline-soft);
+  padding: 40px 32px 48px;
+  text-align: center;
+  color: var(--moon-faint);
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  line-height: 2.2;
+}
+
+footer .en {
+  color: var(--gold-dim);
+  font-size: 10px;
+}
+
+footer .legal-links {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+footer .legal-links a {
+  color: var(--moon-faint);
+  text-decoration: none;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  transition: color 0.3s;
+}
+
+footer .legal-links a:hover {
+  color: var(--gold);
+}
+
+@media (max-width: 720px) {
+  .demo {
+    padding: 36px 22px 40px;
+  }
+
+  .pillar .gz {
+    font-size: 32px;
+  }
+
+  .hero-title {
+    margin-top: -140px;
+  }
+
+  .bagua-wrap {
+    width: 270px;
+    height: 270px;
+  }
+
+  nav {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .pillars {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .art-hero h1 {
+    font-size: 32px;
+  }
+}

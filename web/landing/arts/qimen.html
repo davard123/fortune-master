@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>奇門遁甲 · 中西算命大全</title>
+<meta name="description" content="奇門遁甲 —— 九宮飛盤, 八門九星八神, 古之帝王決策之學。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+
+<nav>
+  <a class="brand" href="/landing/">
+    <div class="brand-seal">卜</div>
+    <div class="brand-name">中西算命大全<span class="en">FORTUNE MASTER</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="/landing/#arts">← 術數一覽</a>
+    <a class="app-entry" href="/#/qimen">立即排盤</a>
+  </div>
+</nav>
+
+<div class="crumb">
+  <a href="/landing/">首頁</a><span class="sep">/</span>
+  <a href="/landing/#arts">術數一覽</a><span class="sep">/</span>
+  奇門遁甲
+</div>
+
+<section class="art-hero">
+  <div class="emblem-lg" id="emblem"></div>
+  <h1>奇門遁甲</h1>
+  <div class="en-sub">QI MEN DUN JIA</div>
+  <p class="art-quote">洛書九宮, 天盤地盤人盤神盤, 四盤同轉, 萬事可決。</p>
+</section>
+
+<article class="art-body">
+  <h2>何為奇門遁甲</h2>
+  <p>奇門遁甲是中國古代最高層次的決策學, 相傳為黃帝戰蚩尤時由九天玄女所授, 後由姜子牙、張良、諸葛亮等人發揚, 歷代為帝王御用。它以「時家奇門」最為常用, 在九宮格中排布天盤 (九星)、地盤 (九宮固定)、人盤 (八門) 與神盤 (八神), 加上三奇六儀, 形成時空的完整模型。</p>
+  <p>奇門遁甲結構龐大但邏輯嚴密, 分為陰遁九局 (冬至後) 與陽遁九局 (夏至後), 每局有「值符」(當令主星) 與「值使」(當令主門), 隨時辰流轉飛布九宮, 反映該時刻的能量場。現代多將其用於擇日、決策、風水, 而非命運預測。</p>
+
+  <h2>適用場景</h2>
+  <ul>
+    <li>重大事件 (談判、出行、訴訟) 的時機選擇</li>
+    <li>商業決策 (項目啟動、簽約、開業)</li>
+    <li>風水擇日與動土時辰</li>
+    <li>奇門局勢分析與趨避</li>
+  </ul>
+
+  <h2>排盤要素</h2>
+  <ul>
+    <li>起局時間 (精確到分鐘, 奇門對時間極敏感)</li>
+    <li>所問之事</li>
+    <li>可選: 用神 (時幹、日乾代表不同主題)</li>
+  </ul>
+
+  <h2>本服務能做什麼</h2>
+  <p>系統即時排盤, 標註陰陽遁、局數、值符值使, 並由 AI 解讀格局 (擊刑、門迫、得使) 與用神旺衰, 給出吉凶判斷與行動建議。注意: 奇門對時間極敏感, 務必輸入準確起局時間。免費版提供基礎格局解讀, 訂閱版給出深度時空分析。</p>
+  <p>範例排盤請見 <a href="../demo.html">命盤示例</a>。</p>
+
+  <div class="cta-banner">
+    <p>準備好窺見天機了嗎？</p>
+    <a href="/#/qimen">開始排盤 →</a>
+  </div>
+</article>
+
+<footer>
+  僅供娛樂與文化體驗 · 不構成任何醫療、法律、投資建議<br>
+  <span class="en">FOR ENTERTAINMENT PURPOSES ONLY · FORTUNE MASTER © 2026</span>
+  <div class="legal-links">
+    <a href="/privacy/">隱私政策</a>
+    <a href="/terms/">服務條款</a>
+    <a href="/cookies/">Cookie 通知</a>
+  </div>
+</footer>
+
+<script src="../landing.js"></script>
+<script>
+  const card = (window.FORTUNE_CARDS || []).find(c => c.slug === 'qimen');
+  if (card) {
+    document.getElementById('emblem').innerHTML = `<svg viewBox="0 0 74 74">${card.svg}</svg>`;
+  }
+</script>
+</body>
+</html>

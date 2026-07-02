@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>命盤示例 · 中西算命大全</title>
+<meta name="description" content="八字命盤示例 —— 1990年5月15日巳時, 真太陽時已校正, 含四柱、五行、AI 深度解讀。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+
+<nav>
+  <a class="brand" href="/landing/">
+    <div class="brand-seal">卜</div>
+    <div class="brand-name">中西算命大全<span class="en">FORTUNE MASTER</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="/landing/">← 回到首頁</a>
+    <a class="app-entry" href="/#/bazi">立即排盤</a>
+  </div>
+</nav>
+
+<div class="crumb">
+  <a href="/landing/">首頁</a><span class="sep">/</span>
+  命盤示例
+</div>
+
+<main class="frame">
+  <div class="sec-head">
+    <div class="zh">命盤示例</div>
+    <span class="en">SAMPLE READING · BAZI</span>
+    <div class="rule"></div>
+  </div>
+
+  <section class="demo">
+    <div class="demo-head">
+      <div class="t">八字排盤<span class="en">FOUR PILLARS OF DESTINY</span></div>
+      <div class="meta">乾造 · 1990年5月15日 巳時 · 真太陽時已校正</div>
+    </div>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="lab">年柱 YEAR</div>
+        <div class="gz">庚<br>午</div>
+        <div class="ss">比肩 · 路旁土</div>
+      </div>
+      <div class="pillar">
+        <div class="lab">月柱 MONTH</div>
+        <div class="gz">辛<br>巳</div>
+        <div class="ss">劫財 · 白蠟金</div>
+      </div>
+      <div class="pillar day">
+        <div class="lab">日柱 DAY</div>
+        <div class="gz">庚<br>辰</div>
+        <div class="ss">日主 · 白蠟金</div>
+      </div>
+      <div class="pillar">
+        <div class="lab">時柱 HOUR</div>
+        <div class="gz">辛<br>巳</div>
+        <div class="ss">劫財 · 白蠟金</div>
+      </div>
+    </div>
+    <div class="daymaster">日主 <b>庚金</b> · 生於巳月 · 得令而旺 &nbsp;|&nbsp; Day master: Yang Metal, born in early summer</div>
+
+    <div class="wuxing">
+      <div class="wx-label">五行分佈 FIVE ELEMENTS</div>
+      <div class="wx-row wx-metal"><span class="name">金</span><span class="bar"><i style="width:32%"></i></span><span class="pct">32%</span></div>
+      <div class="wx-row wx-fire"><span class="name">火</span><span class="bar"><i style="width:24%"></i></span><span class="pct">24%</span></div>
+      <div class="wx-row wx-earth"><span class="name">土</span><span class="bar"><i style="width:20%"></i></span><span class="pct">20%</span></div>
+      <div class="wx-row wx-wood"><span class="name">木</span><span class="bar"><i style="width:12%"></i></span><span class="pct">12%</span></div>
+      <div class="wx-row wx-water"><span class="name">水</span><span class="bar"><i style="width:12%"></i></span><span class="pct">12%</span></div>
+    </div>
+
+    <div class="reading">
+      <div class="r-label">AI 深度解讀 FULL READING</div>
+      <div class="r-block">
+        <div class="r-t">性格 <span class="en">PERSONALITY</span></div>
+        <p>庚金日主坐辰土印庫，稟性剛毅果決，行事自有章法。金旺得令，鋒芒內蘊，然三金並立，偶有固執之嫌，宜納雅言、蓄柔韌。</p>
+      </div>
+      <div class="r-block">
+        <div class="r-t">事業 <span class="en">CAREER</span></div>
+        <p>月時雙巳藏丙火七殺，殺印相生，宜入競爭之局——工程、金融、律法皆合命局之性。中年火運漸起，鍛金成器，穩紮穩打者成。</p>
+      </div>
+      <div class="r-block">
+        <div class="r-t">財運 <span class="en">WEALTH</span></div>
+        <p>局中財星不顯，財藏於巳中戊土之下，主財源不張揚而綿長。忌冒進投機，宜以技藝生財、以人脈通財。</p>
+      </div>
+      <div class="r-block">
+        <div class="r-t">感情 · 健康 <span class="en">RELATIONSHIPS · HEALTH</span></div>
+        <p>日坐華蓋孤宿，情路宜主動言明、忌冷戰相持。金旺者肺氣易燥，秋冬謹養呼吸之疾，晨練納氣為佳。</p>
+      </div>
+    </div>
+  </section>
+
+  <div style="text-align:center;margin:30px 0 80px;">
+    <a href="/#/bazi" style="display:inline-block;border:1px solid var(--gold);color:var(--gold-bright);padding:14px 52px;font-size:14px;letter-spacing:.4em;text-indent:.4em;text-decoration:none;transition:all .4s;">立即排盤 →</a>
+  </div>
+</main>
+
+<footer>
+  僅供娛樂與文化體驗 · 不構成任何醫療、法律、投資建議<br>
+  <span class="en">FOR ENTERTAINMENT PURPOSES ONLY · FORTUNE MASTER © 2026</span>
+  <div class="legal-links">
+    <a href="/privacy/">隱私政策</a>
+    <a href="/terms/">服務條款</a>
+    <a href="/cookies/">Cookie 通知</a>
+    <a href="/landing/">回首頁</a>
+  </div>
+</footer>
+
+<script src="landing.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>塔羅 · 中西算命大全</title>
+<meta name="description" content="韋特塔羅 —— 七十八張牌, 凱爾特十字與三牌陣, 問事問心問方向。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+
+<nav>
+  <a class="brand" href="/landing/">
+    <div class="brand-seal">卜</div>
+    <div class="brand-name">中西算命大全<span class="en">FORTUNE MASTER</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="/landing/#arts">← 術數一覽</a>
+    <a class="app-entry" href="/#/tarot">立即抽牌</a>
+  </div>
+</nav>
+
+<div class="crumb">
+  <a href="/landing/">首頁</a><span class="sep">/</span>
+  <a href="/landing/#arts">術數一覽</a><span class="sep">/</span>
+  塔羅
+</div>
+
+<section class="art-hero">
+  <div class="emblem-lg" id="emblem"></div>
+  <h1>塔羅</h1>
+  <div class="en-sub">TAROT · RIDER-WAITE</div>
+  <p class="art-quote">七十八張大阿爾卡那與小阿爾卡那, 過去現在未來, 因緣業果, 一目了然。</p>
+</section>
+
+<article class="art-body">
+  <h2>何為塔羅</h2>
+  <p>韋特塔羅 (Rider-Waite) 是西方占卜的主流體系, 由亞瑟·愛德華·韋特 (Arthur Edward Waite) 設計、潘蜜拉·寇門史密斯 (Pamela Colman Smith) 繪圖, 1909 年出版, 至今仍是全球最受歡迎的塔羅系統。共有七十八張牌: 大阿爾卡那 22 張 (愚者到世界, 代表人類心靈成長的旅程), 小阿爾卡那 56 張 (權杖、聖杯、寶劍、星幣四花色各 14 張, 對應火水風土四元素)。</p>
+  <p>塔羅的牌面圖像富含符號學意涵 — 每張牌的色彩、人物姿態、星象元素都在傳遞訊息。占卜時可單張抽取 (一日一卡)、三牌陣 (過去-現在-未來) 或凱爾特十字 (十牌深入分析), 牌面正逆位 (Reversed) 反映能量阻塞或內化。</p>
+
+  <h2>適用場景</h2>
+  <ul>
+    <li>日常決策的快速指引 (Yes/No 傾向)</li>
+    <li>感情困惑的釐清 (對方心意、關係走向)</li>
+    <li>短期運勢趨勢 (本週、本月)</li>
+    <li>自我探索與心靈對話</li>
+  </ul>
+
+  <h2>排盤要素</h2>
+  <ul>
+    <li>所問之事 (選填, 但有助聚焦)</li>
+    <li>選擇牌陣 (單張 / 三張 / 凱爾特十字)</li>
+    <li>牌面正逆位隨機, 反映當下能量</li>
+  </ul>
+
+  <h2>本服務能做什麼</h2>
+  <p>系統隨機洗牌切牌, 依選定牌陣發牌, 並由 AI 結合正逆位、花色、數字、圖像符號給出整合解讀。免費版給一段精簡解讀, 訂閱版提供逐張牌義 + 整合建議 + 提問反思。塔羅的解讀主觀性強, 建議視為「對話」而非「判決」。</p>
+  <p>範例排盤請見 <a href="../demo.html">命盤示例</a>。</p>
+
+  <div class="cta-banner">
+    <p>準備好讓塔羅為你指路了嗎？</p>
+    <a href="/#/tarot">開始抽牌 →</a>
+  </div>
+</article>
+
+<footer>
+  僅供娛樂與文化體驗 · 不構成任何醫療、法律、投資建議<br>
+  <span class="en">FOR ENTERTAINMENT PURPOSES ONLY · FORTUNE MASTER © 2026</span>
+  <div class="legal-links">
+    <a href="/privacy/">隱私政策</a>
+    <a href="/terms/">服務條款</a>
+    <a href="/cookies/">Cookie 通知</a>
+  </div>
+</footer>
+
+<script src="../landing.js"></script>
+<script>
+  const card = (window.FORTUNE_CARDS || []).find(c => c.slug === 'tarot');
+  if (card) {
+    document.getElementById('emblem').innerHTML = `<svg viewBox="0 0 74 74">${card.svg}</svg>`;
+  }
+</script>
+</body>
+</html>

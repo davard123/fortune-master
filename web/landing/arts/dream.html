@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>周公解夢 · 中西算命大全</title>
+<meta name="description" content="周公解夢 —— 夢境關鍵詞入典查釋, 古籍原文對照今解, 一夢一世界。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;500;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+
+<nav>
+  <a class="brand" href="/landing/">
+    <div class="brand-seal">卜</div>
+    <div class="brand-name">中西算命大全<span class="en">FORTUNE MASTER</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="/landing/#arts">← 術數一覽</a>
+    <a class="app-entry" href="/#/dream">立即解夢</a>
+  </div>
+</nav>
+
+<div class="crumb">
+  <a href="/landing/">首頁</a><span class="sep">/</span>
+  <a href="/landing/#arts">術數一覽</a><span class="sep">/</span>
+  周公解夢
+</div>
+
+<section class="art-hero">
+  <div class="emblem-lg" id="emblem"></div>
+  <h1>周公解夢</h1>
+  <div class="en-sub">DREAM ORACLE</div>
+  <p class="art-quote">夢中所見非無因, 吉凶禍福皆有象, 查書問典以解心中之惑。</p>
+</section>
+
+<article class="art-body">
+  <h2>何為周公解夢</h2>
+  <p>周公解夢是中國最古老的夢境詮釋體系, 相傳由周公姬旦所作, 後世多有增補。它將夢境分解為動物、植物、器物、自然現象、人際關係等多類關鍵詞, 每個關鍵詞配以「吉 / 凶 / 中平」的判斷, 並引《易經》、五行等傳統文化加以解釋。本服務精選古今權威解夢典籍, 配合現代心理學視角, 給出兼顧傳統與科學的解讀。</p>
+  <p>古人將夢分為「直夢」、「象夢」、「因夢」、「想夢」、「精夢」等數類, 各有不同意義。本服務不僅查典, 也結合心理學對夢的詮釋 (如榮格的集體無意識、弗洛伊德的願望滿足) 給出多角度解讀, 幫助使用者從文化傳統與現代科學兩個視角理解自己的夢。</p>
+
+  <h2>適用場景</h2>
+  <ul>
+    <li>反覆夢境 (如反覆夢見水、蛇、墜落) 的困擾</li>
+    <li>特殊夢境 (夢見亡者、飛行、考試) 的含義追問</li>
+    <li>好奇夢境預示的民間說法</li>
+    <li>心理學視角的潛意識探索</li>
+  </ul>
+
+  <h2>排盤要素</h2>
+  <ul>
+    <li>夢境簡述 (例如「夢見蛇在水中游」)</li>
+    <li>可選: 夢境發生的日期</li>
+    <li>可選: 夢者當前狀態 (壓力大 / 生病 / 懷孕)</li>
+  </ul>
+
+  <h2>本服務能做什麼</h2>
+  <p>系統從夢境描述中抽取關鍵詞, 匹配古籍條目, 並由 AI 整合傳統解夢 + 心理學 (榮格原型、弗洛伊德願望滿足) 給出多角度解讀。所有解讀均為「參考」性質, 不構成任何心理或醫療診斷, 也不應替代專業心理諮詢。</p>
+  <p>範例排盤請見 <a href="../demo.html">命盤示例</a>。</p>
+
+  <div class="cta-banner">
+    <p>準備好解讀你的夢了嗎？</p>
+    <a href="/#/dream">開始解夢 →</a>
+  </div>
+</article>
+
+<footer>
+  僅供娛樂與文化體驗 · 不構成任何醫療、法律、投資建議<br>
+  <span class="en">FOR ENTERTAINMENT PURPOSES ONLY · FORTUNE MASTER © 2026</span>
+  <div class="legal-links">
+    <a href="/privacy/">隱私政策</a>
+    <a href="/terms/">服務條款</a>
+    <a href="/cookies/">Cookie 通知</a>
+  </div>
+</footer>
+
+<script src="../landing.js"></script>
+<script>
+  const card = (window.FORTUNE_CARDS || []).find(c => c.slug === 'dream');
+  if (card) {
+    document.getElementById('emblem').innerHTML = `<svg viewBox="0 0 74 74">${card.svg}</svg>`;
+  }
+</script>
+</body>
+</html>
