@@ -1,5 +1,6 @@
 // lib/core/router.dart
 // go_router 声明式路由
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
