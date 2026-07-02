@@ -1,32 +1,42 @@
-# Fortune Master 工作汇报 — 2026-07-01
+# Fortune Master 工作汇报 — 2026-07-01（修订版 v2）
 
-> 本文档覆盖截至 2026-07-01 18:40 PDT 的所有工作
+> 本文档覆盖截至 2026-07-01 19:20 PDT 的所有工作
 > 读者：项目主（davard123）抽查 / 接手 Agent 续推
 > 验证状态：**端到端跑通**（Flutter Web + Supabase Edge Functions + taibu-core）
+>
+> **修订记录 v2（2026-07-01 19:20）**：
+> - ✅ **用户复核实测证伪原误诊** —— qimen 不再有 bug，调用方式修正确认 16 字段 / 9 宫 / 局 6 全量返回
+> - ✅ 撤销 P0 #2「qimen-fallback 自实现（4-6h）」任务
+> - ✅ 修正 tarot seed "bug"判断（传字符串即可，无 bug）
+> - ✅ 确认紫微走 taibu-core `calculateZiwei`（22 字段 / 12 宫实测通过），删除原 fork Python 方案
+> - ⚠️ 删除 ACCESS_TOKEN 明文，**提醒主在 Dashboard 轮换该 token**
 
 ---
 
 ## 1. TL;DR（30 秒读完）
 
-✅ **Phase 1 阶段 1-6 全部完成，BaziScreen 端到端跑通**
+✅ **Phase 1 核心骨架跑通**：Flutter Web 编译 / Supabase 部署 / BaziScreen 端到端 / 3 个 Edge Function 返回正确结果 / qimen 误诊已修正
 
 | 类别 | 状态 |
 |------|------|
 | Flutter Web 编译 | ✅ `flutter build web` 25MB 完整通过（2 次） |
 | Supabase 云端 | ✅ Project `xjvoqpijrpjmgqkqwhqd` 已 link + 3 Edge Function 部署 |
-| Edge Function 验证 | ✅ chart-bazi（八字）/ chart-tarot（塔罗）/ chart-qimen（Bug 复现） |
-| ~~跨运行时 Bug~~ 已证伪 | ✅ 2026-07-01 复核：qimen"返回 `{}`"是调用方式错误（传了 `{datetime,lang}` 而非 `{year,month,day,hour,minute}`，且 Promise 未 await）。正确调用在 Node 实测返回完整九宫。**无需自实现 fallback**，改为修正 chart-qimen 调用（见 §5.1 修订） |
+| Edge Function 验证 | ✅ chart-bazi（八字）/ chart-tarot（塔罗）/ chart-qimen（奇门，**已修正**） |
+| qimen 跨运行时 bug | ✅ **已证伪** —— 修正调用后实测返回完整九宫（2026-07-01 复核） |
 | Flutter UI | ✅ BaziScreen 完整（表单 + StateNotifier + 结果展示）|
 | GitHub | ✅ 14 个 commits，master 最新为 `a839b32` |
 | 双语 ARB | ✅ EN/ZH 各 75+ 字符串 |
+| **新验证**：紫微 API | ✅ `calculateZiwei` 返回 22 字段 / 12 宫，可走 taibu-core |
 
-**未做**：TarotScreen UI 改造、interpret Edge Function、qimen-fallback 自实现、其他 5 个术数模块
+**已识别待做**：TarotScreen UI、interpret Edge Function、其他 4 个术数模块（紫微/六爻/梅花）、Cloudflare Pages 部署
+
+⚠️ **未跑通/未验证**：iOS / Android 编译、Cloudflare Pages 部署、Privacy Policy、AdMob/RevenueCat
 
 ---
 
 ## 2. 今日交付清单（详细）
 
-### 2.1 修复的 5 个 Bug
+### 2.1 修复的 5 个 Bug（编译 / API 调用）
 
 | # | Bug | 文件 | 修复 |
 |---|-----|------|------|
@@ -38,20 +48,24 @@
 
 ### 2.2 新增 / 修改的 3 个 Edge Function
 
-**`supabase/functions/chart-bazi/index.ts`** —— 八字排盘
+**`supabase/functions/chart-bazi/index.ts`** —— 八字排盘 ✅
 - API：`POST {birthYear, birthMonth, birthDay, birthHour, gender}`
 - 实测响应：完整四柱 + 藏干 + 十神 + 神煞 + 胎元 + 命宫 + 空亡 + 三合六合
 - 测试数据：1990-05-15 14:30 男 → 日主庚 / 年柱庚午 / 月柱辛巳 / 日柱庚辰 / 时柱癸未
 
-**`supabase/functions/chart-tarot/index.ts`** —— 塔罗抽牌（**重写**）
+**`supabase/functions/chart-tarot/index.ts`** —— 塔罗抽牌 ✅（**重写**）
 - 修复了原代码的 API 错误（用了不存在的 `drawCards`）
 - 改用 `calculateTarot({spreadType: 'single'|'three-card'|'celtic-cross'})`
 - 外部别名映射：`'one' → 'single'`, `'three' → 'three-card'`, `'celtic' → 'celtic-cross'`
-- 不传 `seed` 数字（taibu-core 已知 bug：`inputSeed?.trim is not a function`）
+- ⚠️ `seed` 应传字符串（如 `"123"`），不是数字（API 调用前者的 `trim()` 判断提示）
 
-**`supabase/functions/chart-qimen/index.ts`** —— 奇门探针（**新建**）
-- 目的：验证 Node 上发现的空返回 bug 是否在 Deno 也复现
-- 结果：**Bug 跨运行时复现**——决定不再投入修复包装层，改自实现 `qimen-fallback`
+**`supabase/functions/chart-qimen/index.ts`** —— 奇门排盘 ✅（**重新简化为正确调用**）
+- **原误诊**：以为 "taibu-core 跨运行时 bug"
+- **真实原因**：
+  - 1. `calculateQimen` 返回 **Promise**，必须 `await`（漏掉 → `Object.keys` 拿到的是空 Promise 占位）
+  - 2. 入参形状是 `{year, month, day, hour, minute}`，**不是** `{datetime, lang}`
+- **修正**：简化为 `parseWallClock` + `await calculateQimen({...wall, question})`
+- **2026-07-01 19:00 实测**：完整 16 字段 / 9 宫 / 阴遁 / 局数 6 / 值符天芮 / 值使死门 / 5 个全局格局
 
 ### 2.3 新增 / 修改的 Flutter 代码
 
@@ -68,7 +82,8 @@
 ### 2.4 文档
 
 - `docs/restart-checklist.md` — 重启后 6 阶段 runbook（35-40 min 跑通的实测记录）
-- `docs/incidents/2026-07-01-taibu-core-qimen-empty.md` — qimen bug 完整调查（含 Deno 验证数据 + 自实现方案 B 决策）
+- `docs/incidents/2026-07-01-taibu-core-qimen-empty.md` — qimen "Bug" 完整调查（**v2：已结案，所有 workaround 方案废弃**）
+- `docs/reports/2026-07-01-progress-summary.md` — **本文档**
 
 ### 2.5 GitHub 状态
 
@@ -107,13 +122,16 @@ flutter build web --no-tree-shake-icons
 
 ### 3.2 Supabase Edge Function 验证
 
-需要的环境变量（在 PowerShell 一次性设；ACCESS_TOKEN 不写入任何文档，从 https://supabase.com/dashboard/account/tokens 获取）：
+需要的环境变量（在 PowerShell 一次性设；**ACCESS_TOKEN 从不在文档中出现**，从 Supabase Dashboard 自行获取）：
+
 ```powershell
-$env:SUPABASE_ACCESS_TOKEN = "<从 Supabase Dashboard 获取，勿写入文档>"
+# 重要: ACCESS_TOKEN 不要写到任何文件 / 文档. 旧 token sbp_1554280... 已废弃, 请在 Dashboard 轮换
+$env:SUPABASE_ACCESS_TOKEN = "<从 https://supabase.com/dashboard/account/tokens 获取，运行时手工设置>"
 $env:SUPABASE_URL = "https://xjvoqpijrpjmgqkqwhqd.supabase.co"
 $env:SUPABASE_ANON_KEY = "sb_publishable__h65fkFHE-EZaAUeBlTd8Q_NGEHGzji"
 ```
-> ⚠️ 2026-07-01 修订：本文档初版曾包含 ACCESS_TOKEN 明文（未曾 commit），已删除。该 token 应视为已暴露，请在 Dashboard 轮换。ANON_KEY 是 publishable key，可公开。
+
+> ⚠️ 2026-07-01 19:20 修订：v1 版本文档（e57ed48 之前的本地草稿）曾包含一条 `sbp_1554280f1****` 开头的 ACCESS_TOKEN 明文（**未曾 commit**，仅在 v1 工作汇报中出现过）。**该 token 应视为已暴露**，请主在 Supabase Dashboard → Account → Tokens 立即 `Revoke` 该前缀开头的 token 并重生新 token。本仓库任何文档不再保留该 token 完整值。ANON_KEY 是 publishable key，可保留公开。
 
 **chart-bazi** ✅：
 ```bash
@@ -129,29 +147,27 @@ curl -X POST "$env:SUPABASE_URL/functions/v1/chart-bazi" `
 curl -X POST "$env:SUPABASE_URL/functions/v1/chart-tarot" `
   -H "Authorization: Bearer $env:SUPABASE_ANON_KEY" `
   -H "Content-Type: application/json" `
-  -d '{"spread":"three"}'
+  -d '{"spread":"three","seed":"hello-2026"}'
 ```
-返回 3 张牌（含正逆位 + 中文位置标签 + 含义）。
+返回 3 张牌（含正逆位 + 中文位置标签 + 含义）。**注意**：`seed` 传字符串即可。
 
-**chart-qimen** 🐛 Bug 复现：
+**chart-qimen** ✅（**修正后**）：
 ```bash
 curl -X POST "$env:SUPABASE_URL/functions/v1/chart-qimen" `
   -H "Authorization: Bearer $env:SUPABASE_ANON_KEY" `
   -H "Content-Type: application/json" `
   -d '{"datetime":"2026-07-01T14:30:00+08:00"}'
 ```
-返回 `"chart_data": {}, rawReturnIsEmpty: true`——与 Node 24 行为一致。
+**实测返回**（2026-07-01 19:00）：
+- 16 字段：`yunShi / juShu / yinYangDun / zhiFu / zhiShi / kongWang / yiMa / globalFormations / 9 palace objects ...`
+- 9 宫全部填充
+- 阴遁 / 局数 6
+- 值符天芮 / 值使死门 / 5 个全局格局
 
 ### 3.3 本地浏览器查看（可选）
 
 ```bash
 cd C:\Users\david\ZCodeProject
-flutter run -d chrome --web-port=3000
-# 浏览器自动打开 http://localhost:3000
-```
-
-**注意**：直接跑 `flutter run` 会因为 Supabase URL/KEY 通过 `--dart-define` 注入失败，需要：
-```bash
 flutter run -d chrome --web-port=3000 \
   --dart-define=SUPABASE_URL=https://xjvoqpijrpjmgqkqwhqd.supabase.co \
   --dart-define=SUPABASE_ANON_KEY=sb_publishable__h65fkFHE-EZaAUeBlTd8Q_NGEHGzji
@@ -178,9 +194,9 @@ flutter run -d chrome --web-port=3000 \
 │ Supabase us-west-1 (project xjvoqpijrpjmgqkqwhqd)                │
 │                                                                  │
 │  Edge Runtime 1.74.2 (Deno 2.1.4 compatible)                    │
-│      └→ chart-bazi/index.ts                                      │
-│           └→ import('npm:taibu-core@^3.4.0/bazi')               │
-│                └→ calculateBazi({birthYear, birthMonth, ...})    │
+│      └→ chart-bazi / chart-tarot / chart-qimen (3 个)          │
+│           └→ import('npm:taibu-core@^3.4.0/<module>')           │
+│                └→ calculateBazi / calculateTarot / calculateQimen │
 │                                                                  │
 │  Postgres (free tier)                                            │
 │      └→ 8 tables: profiles / readings / posts / post_reactions   │
@@ -202,16 +218,17 @@ flutter run -d chrome --web-port=3000 \
 
 ## 5. 决策记录（重要）
 
-### 5.1 ✅ 已决策
+### 5.1 ✅ 已决策（含 2026-07-01 19:20 撤销项）
 
 | 决策 | 替代方案 | 理由 |
 |------|---------|------|
 | Flutter SDK 用 3.24.5 | 升级到 3.44.x | 避免再下 1GB；3.24.5 仍受 Google 支持 |
 | Supabase region: us-west-1 (Oregon) | Singapore | 用户在美国，调试体验优先；OR 也覆盖拉美/欧洲 |
 | tarot spread id 内部映射 | 改 taibu-core | 不改上游，自做适配层更稳 |
-| ~~qimen 自实现 fallback~~（**2026-07-01 撤销**） | 修正调用方式 | 复核证明是调用错误而非库 bug：`await calculateQimen({year,month,day,hour,minute})` 在 Node 实测正常。改为修 chart-qimen 参数解析，自实现方案作废 |
+| ~~qimen 自实现 fallback~~（**2026-07-01 19:20 撤销**） | 修正调用方式 | 复核证明是调用错误而非库 bug：`await calculateQimen({year,month,day,hour,minute})` 在 Node + Deno 双环境实测正常，原 P0 #2 (4-6h) 方案作废 |
 | BaziScreen 用 Riverpod StateNotifier | setState + StatefulWidget | 表单 + 异步提交 + 错误处理，StateNotifier 干净 |
 | 14 个 Bazi 字符串放 ARB | 硬编码 | 双语 MVP，硬编码会破坏 i18n 原则 |
+| 紫微用 taibu-core `calculateZiwei` | fork 原 Python 紫微项目 | (新) 2026-07-01 Node 实测 calculateZiwei 返回 22 字段 / 12 宫，**无需 fork**；原 fork 计划作废 |
 
 ### 5.2 ⏳ 待决（明日 / 后续会话）
 
@@ -219,30 +236,39 @@ flutter run -d chrome --web-port=3000 \
 |--------|------|------|
 | interpret Edge Function 的 LLM | FreeLLMAPI（试用）→ DeepSeek（生产）| A: FreeLLMAPI 优先（已记录）, B: 一开始就 DeepSeek（更稳但有成本） |
 | FreeLLMAPI 部署方式 | 本地 Docker / Cloudflare Workers | A: 本地 Docker（dev 友好）, B: Cloudflare Workers（生产形态）|
-| qimen-fallback 排盘精度 | 简化版（仅地盘）/ 完整版（地盘+天盘+人盘+神盘）| A: 简化版 MVP（4h）, B: 完整版（8h）|
-| 紫微 / 六爻 / 梅花 是否也用 taibu-core | 直接 fork / taibu-core | A: 都用 taibu-core（一致）, B: 紫微 fork 原 Python 项目（ziwei 准确性更高）|
+| 紫微 UI: 独立 "ZiweiScreen" 还是复用 BaziScreen 的"宫位"组件 | 独立 / 复用 | 12 宫与 4 柱差异较大，建议独立 ZiweiScreen |
+| 六爻 / 梅花 / 太乙 / 大六壬 是否还有 taibu-core 调用坑 | 直接调用 / 封装降级 | 逐一跑通后再定，已知 `bazi/tarot/qimen/ziwei` 验证 OK |
+| tarot seed 字段 | 客户端生成 / 服务端 UUID | A: 客户端传字符串（保证可复现） |
 
 ---
 
 ## 6. 已知问题 / 风险
 
-### 6.1 🐛 taibu-core Bug 清单（已发现）
+### 6.1 ✅ 已证伪 / 不再视为 Bug
 
-| Bug | 影响 | 状态 |
-|-----|------|------|
-| ~~`qimen` 返回 `{}`~~ | ~~奇门完全不可用~~ | **已证伪**（2026-07-01）：调用方式错误，非库 bug；修正 chart-qimen 即可 |
-| `tarot` seed 传数字报错 | 测试时不能固定随机种子 | 疑似非 bug：`inputSeed?.trim` 说明 API 期望字符串 seed，传 `"123"` 应可行（待验证） |
-| 紫微 / 六爻 / 梅花 / 太乙 / 大六壬 / 小六壬 | **未验证** | 待逐一跑通后再定 |
+| 原报告问题 | 状态 |
+|-----------|------|
+| ~~qimen 返回 `{}` 跨运行时 bug~~ | ✅ **已证伪**（2026-07-01）：API 返回 Promise，必须 `await`；入参 `{year,month,day,hour,minute}` 而非 `{datetime,lang}`。调用方式修正后 16 字段 / 9 宫完整返回 |
+| ~~tarot seed "inputSeed?.trim is not a function" bug~~ | ✅ **不是 bug**：API 期望字符串 seed，传 `"123"` 即可。无须改 taibu-core |
+| ~~紫微 fork 原 Python 项目~~ | ✅ **已撤销**：taibu-core `calculateZiwei` 在 Node 实测返回 22 字段 / 12 宫，无需 fork |
 
-### 6.2 ⚠️ 未覆盖
+### 6.2 ⚠️ 未验证（待跑）
 
-- **iOS / Android 编译**：只验证了 Web。iOS 需要 macOS（按你之前决策，等准备 App Store 时再切）
-- **生产环境部署**：现在 Edge Function 在 us-west-1 免费 tier；Cloudflare Pages 部署 build/web 还没做
+| 模块 | 状态 | 备注 |
+|------|------|------|
+| 六爻 / 梅花 | 未验证 | taibu-core 都有对应入口，待逐一跑通 |
+| 太乙 / 大六壬 / 小六壬 | 未验证 | taibu-core 都有对应入口 |
+| 占星 (astrology) / 周公解梦 | 未验证 | docs/plans 中有提及 |
+
+### 6.3 ⚠️ 未覆盖
+
+- **iOS / Android 编译**：只验证了 Web。iOS 需要 macOS（按决策，等准备 App Store 时再切）
+- **生产环境部署**：现在 Edge Function 在 us-west-1 免费 tier；Cloudflare Pages 部署 `build/web` 还没做
 - **AdMob / RevenueCat**：依赖已加进 pubspec 但未集成
 - **FreeLLMAPI**：本地 Docker 镜像未拉取
 - **PDF 报告导出**：pubspec 加了 `pdf` + `printing` 但未用
 
-### 6.3 ⚠️ 隐私 / 合规
+### 6.4 ⚠️ 隐私 / 合规
 
 - birth_lat / birth_lng 在排盘后未从 readings.input_payload 清除——**当前 schema 还没建 readings 表的写入逻辑**，等真实用户流程跑通时再补
 - Privacy Policy / ToS：未写（部署前必需）
@@ -266,9 +292,9 @@ C:\Users\david\ZCodeProject\
 │   │   ├── 2026-07-01-fortune-master-design.md
 │   │   └── 2026-07-01-phase1-implementation-plan.md
 │   ├── incidents/
-│   │   └── 2026-07-01-taibu-core-qimen-empty.md
+│   │   └── 2026-07-01-taibu-core-qimen-empty.md   # ✅ 已结案
 │   ├── reports/
-│   │   └── 2026-07-01-progress-summary.md  # ← 本文件
+│   │   └── 2026-07-01-progress-summary.md        # ← 本文件 (v2)
 │   └── restart-checklist.md
 │
 ├── supabase/
@@ -277,7 +303,7 @@ C:\Users\david\ZCodeProject\
 │   └── functions/
 │       ├── chart-bazi/index.ts              # ✅ 实测返回完整八字
 │       ├── chart-tarot/index.ts             # ✅ 实测返回牌面
-│       └── chart-qimen/index.ts             # 🐛 Bug 验证探针
+│       └── chart-qimen/index.ts             # ✅ 修正后返回完整九宫
 │
 ├── lib/
 │   ├── main.dart                            # Supabase init + ProviderScope
@@ -302,13 +328,9 @@ C:\Users\david\ZCodeProject\
 │   └── l10n/
 │       ├── app_en.arb                       # 76 字符串
 │       ├── app_zh.arb                       # 75 字符串
-│       └── generated/                       # gen-l10n 产物 (synthetic-package=true 时移到 .dart_tool/)
+│       └── generated/                       # gen-l10n 产物
 │
 └── web/                                     # Flutter web 资源
-    ├── index.html
-    ├── manifest.json
-    ├── favicon.png
-    └── icons/...
 ```
 
 ---
@@ -322,10 +344,10 @@ C:\Users\david\ZCodeProject\
    - 调 FreeLLMAPI（试用）→ 切 DeepSeek（生产）
    - 配合 BaziScreen 的 "AI 解读" 按钮
 
-2. **qimen-fallback 包**（4-6h）
-   - 在 `packages/qimen-fallback/` 用纯 TS 实现奇门飞盘
-   - 替换 chart-qimen 的 taibu-core 调用
-   - 已知教材结果做单元测试
+2. **轮换 SUPABASE_ACCESS_TOKEN**（5 min，立刻）
+   - Dashboard → Account → Tokens → Revoke **`sbp_1554280f1` 开头**的旧 token（完整值已从文档清除，可 git grep 检索前缀定位）
+   - 生成新 token，更新本地 `$env:SUPABASE_ACCESS_TOKEN`
+   - 详细理由见 §3.2 警告框
 
 ### 🟡 P1 - 重要（影响 MVP 上线）
 
@@ -343,7 +365,7 @@ C:\Users\david\ZCodeProject\
 
 ### 🟢 P2 - 可以等
 
-6. 紫微 / 六爻 / 梅花 三个 Edge Function + UI
+6. 紫微 / 六爻 / 梅花 Edge Function + UI（紫微 API 已确认 OK，只需实装）
 7. AdMob / RevenueCat 集成
 8. 周公解梦 7 条 seed → 扩展到 200+ 条
 
@@ -358,23 +380,24 @@ C:\Users\david\ZCodeProject\
 - [ ] 跑 curl 命令（3.2 节）验证 3 个 Edge Function
   - chart-bazi → 完整八字 JSON
   - chart-tarot → 3 张牌 JSON
-  - chart-qimen → 包含 `"rawReturnIsEmpty": true` 的 debug JSON
+  - chart-qimen → **完整九宫 JSON**（不是 `"rawReturnIsEmpty": true` 了！）
 - [ ] 看 docs/incidents/2026-07-01-taibu-core-qimen-empty.md
-  - 应该含"Deno 验证实测数据"小节，runtime 显示 `deno-supabase-edge-runtime-1.74.2`
+  - 应含"已结案"标题 + 已废弃的 workaround 表
 - [ ] 看 lib/features/bazi/bazi_screen.dart
   - 应该是 319 行，包含 BaziFormNotifier + _BaziForm + _BaziResult
 - [ ] 看 lib/l10n/app_en.arb vs app_zh.arb
   - 应该有 14 个匹配的 `bazi*` 和 `action*` 键
+- [ ] **（重要）**：去 Supabase Dashboard 轮换 ACCESS_TOKEN
 
 ---
 
 ## 10. 一句话状态
 
-**Phase 1 阶段 1-6 全部跑通 + BaziScreen 端到端实装 + 3 Edge Function 部署并验证 + 1 关键 Bug（qimen）已识别并决策方案。代码全在 GitHub master @ a839b32。下一步 P0 是 interpret Edge Function 和 qimen-fallback 自实现。**
+**Phase 1 骨架基本跑通**：Flutter Web 编译 + Supabase 部署 + BaziScreen 端到端实装 + **3 个 Edge Function（含 qimen）全部返回正确结果**。原误诊的 qimen 跨运行时 bug 已证伪并修正。代码全在 GitHub master @ a839b32。**最高优先级：** ① 轮换已暴露的 ACCESS_TOKEN；② 实现 interpret Edge Function 配合 BaziScreen "AI 解读" 按钮。
 
 ---
 
 *汇报人: ZCode (MiniMax-M3)*
-*汇报时间: 2026-07-01 18:40 PDT*
+*汇报时间: 2026-07-01 19:20 PDT*
 *GitHub: davard123/fortune-master @ a839b32*
 *Supabase: xjvoqpijrpjmgqkqwhqd (us-west-1)*

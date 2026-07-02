@@ -1,121 +1,204 @@
-# Incident: taibu-core 奇门排盘在 Node 环境返回空对象
+# Incident: taibu-core 奇门排盘 "返回空对象" — **已结案，误诊**
 
 **日期**：2026-07-01
 **发现人**：davard123（通过 Claude 自动化验证）
-**严重度**：🔴 高（核心术数之一完全不可用）
+**严重度**：🟢 **已结案，无 bug**（初始 🔴 误判为 taibu-core 缺陷）
+**结案人**：davard123（用户复核实测证伪）
+**结案时间**：2026-07-01 18:55 PDT
 
-## 现象
+---
 
-`taibu-core`（v3.4.0+，MIT，`npm install taibu-core`）的 `calculateQimen()` 在 Node v24.14.0 下，传入合法参数（`year/month/day/hour/minute`）返回 **空对象 `{}`**，而非预期的奇门飞盘结果。
+## TL;DR
 
-## 已排除的可能原因
+**taibu-core/qimen 没有 bug**。所谓"返回 `{}`"是**两个独立错误叠加**造成的误诊：
 
-- ✅ taibu-core 安装成功（`npm install taibu-core` 无错）
-- ✅ 8 个域函数均可 `require`（`bazi/qimen/astrology/ziwei/liuyao/...`）
-- ✅ `calculateBazi()` 正常返回完整四柱
-- ✅ `calculateAstrology()` 正常返回 natal chart
-- ❌ `calculateQimen()` 返回 `{}`
+1. **未 `await`**：`calculateQimen()` 返回 `Promise`，对 pending Promise 取 `Object.keys()` 得空数组 `[]`（看起来就像空对象）
+2. **参数形状错误**：传 `{datetime: "ISO 字符串", lang}` 不是 taibu-core/qimen 的入参形状（应传 `{year, month, day, hour, minute?}`），taibu 内部抛 "arg can't be use"，被外层 try/catch 吞掉，chart 保持初始 `{}`
 
-## 推测根因（待验证）
-
-`taibu-core/qimen` 内部通过**临时修改**全局变量 `process.env.TZ` 处理时区转换。Node 下：
-
-1. **可能 1**：`process.env.TZ` 修改后，`Date()` 对象已经缓存了旧的时区 offset，无法再更新（V8 Date 内部有缓存）
-2. **可能 2**：奇门依赖 `Intl.DateTimeFormat` 计算，时间在格式化前就要定型
-3. **可能 3**：奇门内部依赖 `lunar-javascript` 的某段时区敏感代码
-
-具体根因未在源码层面确认。
-
-## 已知 Workaround 候选方案
-
-### 方案 A：包装层做时区偏移（推荐）
+正确用法：
 ```ts
-function calculateQimenSafe(input: { year: number; month: number; day: number; hour: number; minute: number; tz: string }) {
-  // 1. 把目标时区的本地时间转 UTC
-  // 2. 用 UTC 时间调用 taibu-core.calculateQimen
-  // 3. 因为 taibu-core 内部 getSolarDate 期望的是"未做时区转换的本地时间数字",
-  //    所以传 UTC 数字其实是错的, 还要继续探索
-  throw new Error('TBD');
-}
+const chart = await calculateQimen({ year: 2026, month: 7, day: 1, hour: 14, minute: 30 });
+// 返回完整 16 字段, 9 宫, yin dun, ju 6, 值符天芮, 值使死门, 5 个全局格局
 ```
 
-### 方案 B：换实现
-- 改用 fork 的 `Brhiza/mingyu`（其 qimen 实现是否同样依赖 tz?)
-- 用纯 JS 重写奇门飞盘（数学工作量约 200 行，已知算法公开）
+---
 
-### 方案 C：在 Deno 上验证
-- 部署到 Supabase Edge Function 后再看行为
-- Deno 下 `process.env.TZ` 对 Date 的影响可能和 Node 不一样
+## 误诊时间线
 
-## 下一步
+### Step 1: Node 24 验证（错的）
 
-1. ✅ **Week 3 已做**：在 Supabase Edge Function（Deno 2.1.4 / Edge Runtime 1.74.2）实测一次 `calculateQimen` 的行为
-2. **结果**：🐛 **Deno 也失败**，返回 `{}`。结论：**跨运行时 Bug，非 Node 特有**。
-3. **新决定**：放弃方案 A（时区偏移包装），直接走方案 B——抽取独立模块 `packages/qimen-fallback/`，用纯 TS 实现奇门飞盘核心（约 200-300 行）。
+**现象**：`Object.keys(calculateQimen({...}))` 返回 `[]`
 
-## Deno 验证实测数据 (2026-07-01)
+**当时推断**：以为 taibu-core 内部修改 `process.env.TZ` 后 V8 Date 缓存旧 offset 导致返回空（"可能 1/2/3"）。
 
-部署到 `xjvoqpijrpjmgqkqwhqd.supabase.co/functions/v1/chart-qimen`，调用：
+**真实原因**：忘 `await`，对 pending Promise 取 keys 就是空数组。
 
-```
-POST {"datetime":"2026-07-01T14:30:00+08:00","lang":"zh-CN"}
+### Step 2: Deno 验证（错的）
+
+**chart-qimen/index.ts 部署后 curl**：
+```bash
+curl -X POST .../chart-qimen -d '{"datetime":"2026-07-01T14:30:00+08:00","lang":"zh-CN"}'
+# 返回: {"chart_data":{}, ...}
 ```
 
-响应：
+**当时推断**：Deno 也复现，是 taibu-core 自身 bug，需自实现 fallback。
+
+**真实原因**：传 `{datetime, lang}` 是错的入参形状，taibu 内部抛错被 try/catch 吞掉，chart 保持初始 `{}`。
+
+### Step 3: 用户复核（2026-07-01 18:50）
+
+用户实测三种调用方式：
+
+| 调用方式 | 结果 |
+|---------|------|
+| `await calculateQimen({year, month, day, hour, minute})` | ✅ **完整 16 字段、9 宫、局数 6** |
+| 同样参数但忘了 await | `Object.keys(r)=[]` —— pending Promise 的 keys 就是空数组 |
+| 传 `{datetime: "ISO 字符串", lang}` | 抛错 "奇门排盘失败: arg can\`t be use" |
+
+phase1-implementation-plan.md §1.4 里原本就写着 qimen 用 `year/month/day/hour(/minute)`，当时没照做。
+
+---
+
+## 已废弃的 Workaround 方案
+
+| 方案 | 状态 |
+|------|------|
+| **A**: 时区偏移包装层 | ❌ 废弃（bug 不存在） |
+| **B**: 自实现 qimen-fallback 包（~200-300 行 TS） | ❌ **完全废弃**，是 P0 #2 但根因错了 |
+| **C**: 在 Deno 上验证 | ❌ 误导性结论（Deno 也"复现"是因为同样的代码错误） |
+
+---
+
+## 正确的 API 用法（参考）
+
+```ts
+// 最小调用
+const chart = await calculateQimen({
+  year: 2026, month: 7, day: 1, hour: 14, minute: 30,
+});
+
+// 可选: 带问题（用于后续 AI 解读）
+const chart2 = await calculateQimen({
+  year: 2026, month: 7, day: 1, hour: 14, minute: 30,
+  question: '今日适合签约吗？',
+});
+```
+
+**返回字段**（实测 2026-07-01 14:30）：
 ```json
 {
-  "chart_data": {},
-  "system": "qimen",
-  "computedAt": "2026-07-02T01:26:54.314Z",
-  "debug": {
-    "runtime": "deno-supabase-edge-runtime-1.74.2 (compatible with Deno v2.1.4)",
-    "taibuQimenKeys": ["calculateQimen", "toQimenJson", "toQimenText"],
-    "rawReturnIsEmpty": true,
-    "rawReturnKeys": []
-  }
+  "dateInfo": { "solarDate", "lunarDate", "solarTerm", "solarTermRange" },
+  "siZhu": { "year", "month", "day", "hour" },
+  "dunType": "yin",                  // 阴遁
+  "juNumber": 6,                      // 6 局
+  "yuan": "下元",
+  "xunShou": "甲辰",
+  "zhiFu": { "star": "天芮星", "palace": 9 },
+  "zhiShi": { "gate": "死门", "palace": 2 },
+  "palaces": [ /* 9 个宫, 每个含天盘/地盘/九星/八门/八神/格局/旺衰/空亡/驿马/入墓 */ ],
+  "kongWang": { "dayKong": {...}, "hourKong": {...} },
+  "yiMa": { "branch": "亥", "palace": 6 },
+  "globalFormations": [ "坎宫: 蛇矫入火", "巽宫: 太白入荧", "乾宫: 刑格", "兑宫: 日出扶桑", "离宫: 地遁" ],
+  "panType": "转盘",
+  "juMethod": "拆补法",
+  "monthPhase": { "甲": "休", ..., "癸": "囚" }
 }
 ```
 
-**关键发现**：
-- taibu-core/qimen 模块本身正常导出（`calculateQimen/toQimenJson/toQimenText` 都在）
-- 函数调用不抛错，但返回 `{}`
-- **跟 Node 24.14.0 行为一致**——确认是 taibu-core/qimen 的实现 bug，不是 Node 特有
+---
 
-## 新方案 B 实施计划
+## Supabase Edge Function 实装经验（chart-qimen）
 
-抽出 `packages/qimen-fallback/`，目录结构：
+Deno 部署成功的关键：
+
+1. **Edge Runtime 是 UTC**（不是 Asia/Shanghai）—— `new Date().getTimezoneOffset()` 返回 0
+2. **Deno 禁止环境变量写入** —— taibu 内部修改 `process.env.TZ` 不会生效，但 UTC 运行时下本来就是 UTC，**无需任何 workaround**
+3. **`new Date(y, m-1, d, h, min)` 在 UTC 环境下返回的本地 getter 就是传入的墙钟数字**，所以"用户传入 14:30"等价于"机器就在 UTC 14:30"——巧合地正确
+
+简化后的 chart-qimen 实装（最终版）：
+
+```ts
+// supabase/functions/chart-qimen/index.ts
+import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
+
+interface QimenRequest {
+  datetime?: string;       // ISO, 如 "2026-07-01T14:30:00+08:00"
+  question?: string;
+}
+
+function parseWallClock(iso: string) {
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
+  if (!m) return null;
+  return {
+    year: +m[1], month: +m[2], day: +m[3],
+    hour: +m[4], minute: +m[5],
+  };
+}
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  try {
+    const body: QimenRequest = await req.json().catch(() => ({}));
+    if (!body.datetime) return new Response(JSON.stringify({ error: 'datetime required (ISO)' }), { status: 400 });
+    const wall = parseWallClock(body.datetime);
+    if (!wall) return new Response(JSON.stringify({ error: 'Invalid datetime format' }), { status: 400 });
+
+    const { calculateQimen } = await import('npm:taibu-core@^3.4.0/qimen');
+    const chart = await calculateQimen({ ...wall, question: body.question });
+    // ↑ 注意 await - 这才是上次 bug 的根因
+
+    return new Response(JSON.stringify({ chart_data: chart, system: 'qimen', computedAt: new Date().toISOString() }), {
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+  }
+});
 ```
-packages/qimen-fallback/
-├── src/
-│   ├── index.ts           # 对外导出 calculateQimen(input) → QimenChart
-│   ├── ju.py              # 排局（阳遁/阴遁确定）
-│   ├── plate.ts           # 九宫盘（地盘/天盘/人盘/神盘）
-│   ├── stems.ts           # 天干九星八门排布规则
-│   └── types.ts           # QimenChart 接口
-├── test/
-│   └── known-cases.ts     # 已知日期的奇门盘结果（来自公开教材）
-└── deno.json
-```
 
-参考教材：《神奇的奇门遁甲》（胡水旺）、《奇门遁甲白话精解》（孙膑）、中国盲派奇门
+---
 
-## 参考
+## 教训
 
-- Node 验证脚本：`~/fortune_master_tools/verify-taibu.js`
-- Deno 验证函数：`supabase/functions/chart-qimen/index.ts`
-- 测试环境 (Node)：Windows 11, Node 24.14.0, taibu-core (npm latest)
-- 测试环境 (Deno)：Supabase Edge Runtime 1.74.2 (compatible Deno 2.1.4)
-- 测试参数：2026-07-01 14:30 +08:00
-- 输出：`{}` (空对象, **两运行时一致**)
+1. **Promise 必须 await**——对未 await 的 Promise 取 `Object.keys()` 永远返回 `[]`，容易误诊为空对象
+2. **API 入参形状要对**——传错字段名（如 `datetime` 而非 `year/month/day`）会被静默 try/catch 吞掉
+3. **遇到"返回空对象"先做控制台探针**——打印完整对象而不只是 keys，确认是 `{}` 还是 `Promise<{}>`
+4. **不要在没 await 的前提下断言函数"返回空"**——这是经典 JS 陷阱
+5. **外部 API 错误时不要立刻判定上游 bug**——大概率是调用姿势不对
 
-## 影响范围
+---
+
+## 影响范围（修订）
 
 | 术数 | Phase 1 影响 |
 |------|---------------|
-| 八字 | ✅ OK (Deno 验证) |
-| 紫微 | ⚠️ 待验证（疑似同套时区机制）|
-| 奇门 | ❌ Broken in **Node + Deno**, 需自实现 fallback |
-| 西占星 | ✅ OK (Node 验证) |
-| 塔罗 | ✅ OK (Deno 验证, 修复 API 后) |
-| 六爻 / 梅花 / 太乙 / 大六壬 / 小六壬 | ⚠️ 待逐一验证 |
+| 八字 | ✅ OK（Deno + Node 均验证）|
+| 紫微 | ⚠️ 待验证（已决定继续用 taibu-core calculateZiwei） |
+| 奇门 | ✅ OK（Deno 验证完整 9 宫返回）**前提：用正确 API + await** |
+| 西占星 | ✅ OK（Node 验证） |
+| 塔罗 | ✅ OK（Deno 验证，spread 别名映射） |
+| 六爻 / 梅花 / 太乙 / 大六壬 / 小六壬 | ⚠️ 待逐一验证，但**应先 await** |
 | 周公解梦 | ✅ 自建，无依赖 |
+
+---
+
+## 相关错误（同类陷阱）
+
+| 模块 | "Bug" | 真实原因 |
+|------|------|---------|
+| tarot `seed` 数字 | `inputSeed?.trim is not a function` | 传数字 → `5?.trim()` 当然报错。传 **字符串** `'123'` 就正常 |
+| qimen `datetime` | 抛错 `arg can't be use` | datetime 不是 qimen 入参，应为 `{year, month, day, hour, minute}` |
+
+**这两个"bug"都是同一类误诊：API 入参形状/类型不对，不是 taibu-core 缺陷。**
+
+---
+
+## 参考
+
+- 用户复核实测脚本：`fortune_master_tools/probe_qimen_verify.mjs`
+- 修复后的 Edge Function：`supabase/functions/chart-qimen/index.ts`
+- Deno 验证响应：完整 16 字段 / 9 宫 / yin dun / 6 局 / 值符天芮 / 值使死门 / 5 格局
+
+---
+
+**结案状态**：✅ 无 taibu-core bug，无需自实现，P0 #2 (4-6h) 已取消。
