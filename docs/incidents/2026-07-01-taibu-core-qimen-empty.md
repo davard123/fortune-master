@@ -1,12 +1,19 @@
-# Incident: taibu-core 奇门排盘 "返回空对象" — **已结案，误诊**
+# Incident: taibu-core 奇门排盘 — 两轮诊断，最终自实现替代
 
-**日期**：2026-07-01
-**发现人**：davard123（通过 Claude 自动化验证）
-**严重度**：🟢 **已结案，无 bug**（初始 🔴 误判为 taibu-core 缺陷）
-**结案人**：davard123（用户复核实测证伪）
-**结案时间**：2026-07-01 18:55 PDT
+**日期**：2026-07-01 ~ 2026-07-02
+**严重度**：🟡 最终结论：taibu-core/qimen 在 Supabase Edge Runtime 下**结果不可信**（非崩溃性 bug，是静默算错），已改用自实现引擎替代
+**状态**：✅ **已修复**（`supabase/functions/_shared/qimen-native.ts`，2026-07-02 部署验证）
 
 ---
+
+## 时间线总览（两轮诊断，缺一不可）
+
+1. **第一轮（2026-07-01）**：诊断出"返回空对象"是调用姿势错误（忘 await + 参数形状错），**不是** taibu-core bug。这个结论**依然成立**，见下方"第一轮：调用姿势问题"。
+2. **第二轮（2026-07-02）**：调用姿势修好后，结果不再是空对象，但**逐宫交叉验证发现日柱/时柱天干算错**——这是 taibu-core 库本身的架构限制（内部依赖真实修改 `process.env.TZ`，Deno Edge Runtime 禁止运行时改环境变量），不是参数问题，无法在调用方打补丁修复。最终改为自实现拆补法排盘引擎，不再依赖 taibu-core/qimen。见下方"第二轮：时区精度问题"。
+
+---
+
+## 第一轮：调用姿势问题（2026-07-01，结论依然成立）
 
 ## TL;DR
 
@@ -193,12 +200,65 @@ serve(async (req) => {
 
 ---
 
-## 参考
+## 第二轮：时区精度问题（2026-07-02，推翻"无需自实现"结论）
 
-- 用户复核实测脚本：`fortune_master_tools/probe_qimen_verify.mjs`
-- 修复后的 Edge Function：`supabase/functions/chart-qimen/index.ts`
-- Deno 验证响应：完整 16 字段 / 9 宫 / yin dun / 6 局 / 值符天芮 / 值使死门 / 5 格局
+### 发现过程
+
+调用姿势修好、部署上线后，用同一时刻（`2026-07-01 14:30` 上海时间）交叉验证：
+
+| 计算方式 | 日柱 | 时柱 |
+|---|---|---|
+| 部署的 chart-qimen（taibu-core, 传 `{year:2026,month:7,day:1,hour:14,minute:30}`, 不传 timezone） | `丁丑` | `丁未` |
+| `lunar-javascript` 直接计算同一时刻（`Solar.fromYmdHms(2026,7,1,14,30,0).getLunar()`） | `丙子` | `乙未` |
+
+**两者不一致**。`lunar-javascript` 是纯历法计算（不依赖系统时区），也是八字模块（`chart-bazi`）在用的同一套库，结果可信。奇门返回的日柱天干是错的。
+
+### 根因（taibu-core 源码证实，非猜测）
+
+`taibu-core/dist/domains/qimen/calculate.js` 的核心函数注释：
+
+```
+// 注意：taobi 库依赖 process.env.TZ 来正确解析 Date 对象。
+const previousTimeZone = process.env.TZ;
+process.env.TZ = timezone;
+try {
+    const date = new Date(year, month - 1, day, hour, minute);
+    t = new TheArtOfBecomingInvisible(date, ...);
+```
+
+`taibu-core` 自己的 `shared/timezone-utils.ts` 里有一个专门为"不能改系统时区的沙箱环境"设计的安全工具函数 `zonedWallClockToSystemDate`（纯 `Intl` 计算，不需要改 `process.env`），但 qimen 模块的注释明确写着：
+
+> "taobi 库内部使用 Date 的 UTC 时间戳，zonedWallClockToSystemDate 无法替代。"
+
+也就是说：taobi（奇门核心算法库）不是读 `Date` 的本地时间读数（可以伪造），而是直接读 `.getTime()`（绝对 UTC 时间戳）驱动内部的 Julian Day / 干支计算，而这个时间戳只能靠**真正修改系统时区、让 JS 引擎原生构造出正确的 `new Date(...)`** 才能算对。Supabase Edge Runtime 里 `process.env.TZ = ...` 直接抛 `The operation is not supported`，所以这个前提在 Edge Function 里永远不成立。
+
+**尝试过的绕过方案，均失败**：
+- 吞掉 env 写入错误（no-op），强制传 `timezone:'UTC'` + 手动做 UTC 偏移换算 → 语义错误（把"上海 14:30"当成"UTC 14:30"直接算，等于时间点错了 8 小时）
+- `Date` 子类替换全局 `Date`，伪造本地 getter → minified bundle 未采用该引用，未生效
+- 只 patch `Date.prototype.getTimezoneOffset()` 等方法，不碰构造函数 → 构造函数是 V8 原生实现，读取真实系统时区，无法从 JS 层拦截，导致 getter 和 epoch 不一致，结果更乱
+
+**结论：这是 taibu-core 库的架构限制，在当前 Supabase Edge Runtime（禁止运行时改环境变量）下无法在调用方修复。**
+
+### 最终修复：自实现拆补法排盘引擎
+
+`supabase/functions/_shared/qimen-native.ts`（2026-07-02 新增，~330 行）：
+
+- 四柱：直接用 `lunar-javascript`（和八字模块同一套库，纯历法计算，不依赖系统时区）
+- 局数/阴阳遁判定：拆补法，二十四节气对照表，交叉核实了两个独立中文资料来源
+- 地盘三奇六仪排布：**已用一个完整实例逐宫验证通过**（癸卯年戊午月己酉日戊辰时 / 农历癸卯年五月初三 8 时 / 公历 2023-06-20 08:00，芒种，阳遁六局 → 六宫起戊，戊己庚辛壬癸丁丙乙顺排，9 个宫全部吻合）
+- 值符值使定位、天盘九星/人盘八门的旋转方向：**中等置信度**——中文资料对旋转方向存在流派分歧（转盘法/飞盘法），本实现统一按"阳顺阴逆"处理，但没有找到可逐宫核对的权威实例。**上线前建议找一个可信的奇门排盘工具/教材做逐宫比对**，返回结果里的 `_meta.confidence` 字段已如实标注这一点。
+
+实测（2026-07-02，Deno 部署）：`2026-07-01 14:30` 上海时间 → 日柱 `丙子`，时柱 `乙未`，与 `lunar-javascript` 权威基准一致。
 
 ---
 
-**结案状态**：✅ 无 taibu-core bug，无需自实现，P0 #2 (4-6h) 已取消。
+## 参考
+
+- 用户复核实测脚本：`fortune_master_tools/probe_qimen_verify.mjs`
+- 第一轮修复后的 Edge Function（调用姿势）：`supabase/functions/chart-qimen/index.ts`
+- 第二轮最终引擎（自实现，替代 taibu-core/qimen）：`supabase/functions/_shared/qimen-native.ts`
+- 二十四节气局数表来源：知乎 p/648135351 与另一独立来源交叉验证；地盘排列规则+完整实例：知乎 p/644619189（通过搜索摘要获取）
+
+---
+
+**最终状态**：✅ 已修复。奇门遁甲不再依赖 taibu-core，四柱/局数/地盘高置信度，值符值使与星门旋转方向中等置信度（待人工核对）。

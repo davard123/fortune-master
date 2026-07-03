@@ -79,7 +79,7 @@
 
 - 按 design.md §5.1 的端点设计（`POST /v1/chart/*`）起 Supabase Edge Functions 骨架
 - 先跑通 `/v1/chart/bazi` 和 `/v1/chart/tarot` 两个最小端点，都调用 `taibu-core`
-- **关键验证项（必须在这一周做，不要拖到后面）**：把 Edge Function 真正部署到 Supabase 云端项目后，测一次 `taibu-core/qimen` 的时区处理是否正常。它内部靠临时修改 `process.env.TZ` 全局变量处理时区（配了互斥锁防并发冲突），本地 Node 测试是通的，但 Supabase Edge Functions 跑的是 **Deno** 运行时，`process.env.TZ` 对 `Date` 计算是否同样生效，此前只在本地 Node 验证过，没在 Deno 里测过。如果 Deno 下不生效，需要找替代方案（比如手动做时区偏移计算，而不依赖 `process.env.TZ` 全局变异）。
+- **已解决（2026-07-02）**：`taibu-core/qimen` 在 Supabase Edge Runtime 下确认无法正确处理非 UTC 时区——内部依赖真实修改 `process.env.TZ`，Deno Edge Runtime 禁止运行时改环境变量，这是库的架构限制，不是参数问题，无法在调用方打补丁修复。已改为自实现拆补法排盘引擎，见 `supabase/functions/_shared/qimen-native.ts`，四柱用 `lunar-javascript` 直接算（不依赖系统时区）。局数/地盘已用完整实例逐宫验证；值符值使与星门旋转方向仍是中等置信度（中文资料存在流派分歧），**其余 domain 接线前如果也发现类似"结果不对但不报错"的情况，直接怀疑同样的 TZ 依赖问题，不要假设只有 qimen 才有**。详见 `docs/incidents/2026-07-01-taibu-core-qimen-empty.md`。
 
 ## 4. Week 4：Flutter 客户端脚手架
 

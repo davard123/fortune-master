@@ -1,17 +1,26 @@
 // supabase/functions/chart-qimen/index.ts
 // POST /functions/v1/chart-qimen
-// 调用 taibu-core/qimen 进行奇门遁甲排盘. Tier 0 (免费).
+// 奇门遁甲排盘. Tier 0 (免费).
 //
-// 2026-07-01 修订 (用户复核实测后):
-//   原"qimen 返回 {} 跨运行时 bug"已证伪. taibu-core 没有缺陷.
-//   真实原因:
-//     1. calculateQimen 返回 Promise, 必须 await
-//     2. 入参形状是 {year, month, day, hour[, minute]}, 不是 {datetime, lang}
-//   本实装已修正两个错误.
-//   详见 docs/incidents/2026-07-01-taibu-core-qimen-empty.md 结案.
+// 2026-07-02 修订: 不再调用 taibu-core/qimen。
+//   原因: taibu-core 的 calculateQimen 内部依赖真实修改 process.env.TZ 才能
+//   正确解析非 UTC 的墙钟时间（库自己的源码注释也承认 "zonedWallClockToSystemDate
+//   无法替代"）。Supabase Edge Runtime 禁止运行时改环境变量，导致奇门结果的
+//   日柱/时柱天干在实测中被证实算错（与 lunar-javascript 直接计算的权威结果不一致）。
+//   这是 taibu-core 库本身的架构限制，不是参数传法问题，无法在调用方打补丁修复。
+//
+//   改为: 自实现拆补法排盘 (见 ../_shared/qimen-native.ts)，四柱直接用
+//   lunar-javascript (纯历法计算，不依赖系统时区，和八字模块同一套算法)。
+//
+//   置信度: 四柱/局数判定/地盘排列已用一个完整实例逐宫验证通过；值符值使定位、
+//   天盘九星与人盘八门的旋转方向仍是中等置信度 (中文资料对旋转方向存在流派分歧)。
+//   详见 qimen-native.ts 文件头注释。上线前建议找一个可信的奇门排盘工具逐宫核对。
+//
+//   详见 docs/incidents/2026-07-01-taibu-core-qimen-empty.md。
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { handleCorsPreflight, jsonResponse } from '../_shared/cors.ts';
+import { calculateQimenNative } from '../_shared/qimen-native.ts';
 
 interface QimenRequest {
   datetime?: string;
@@ -23,12 +32,8 @@ interface QimenRequest {
   minute?: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare const Deno: any;
-
-// 从 ISO 字符串解析"墙钟时间"字面量.
-// Edge Runtime 是 UTC, new Date(y,m-1,d,h,min) 的本地 getter 返回传入数字
-// 所以"用户本地 14:30"等价于"机器 UTC 14:30" —— 巧合正确, 不需要时区切换.
+// 从 ISO 字符串解析"墙钟时间"字面量 (不管带不带 +08:00 偏移, 都当作字面量直接用,
+// 与八字模块一致 —— lunar-javascript 是纯历法计算, 不需要真实换算时区).
 function parseWallClock(iso: string) {
   const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
   if (!m) return null;
@@ -59,16 +64,13 @@ serve(async (req) => {
     if (!wall) {
       return jsonResponse(
         req,
-        {
-          error:
-            'Provide {datetime: ISO string} or {year, month, day, hour[, minute]}',
-        },
+        { error: 'Provide {datetime: ISO string} or {year, month, day, hour[, minute]}' },
         400,
       );
     }
 
-    const { calculateQimen } = await import('npm:taibu-core@^3.4.0/qimen');
-    const chart = await calculateQimen({ ...wall, question: body.question });
+    const { Solar } = await import('npm:lunar-javascript@^1.7.7');
+    const chart = calculateQimenNative({ ...wall, question: body.question }, { Solar });
 
     return jsonResponse(req, {
       chart_data: chart,
