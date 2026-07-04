@@ -128,7 +128,12 @@ serve(async (req) => {
     }
 
     const data: UpstreamChatResponse = await llmRes.json();
-    const interpretation: string = data?.choices?.[0]?.message?.content?.trim() ?? '';
+    const rawContent: string = data?.choices?.[0]?.message?.content ?? '';
+    // 推理模型 (MiniMax M 系列 / DeepSeek R 系列等) 会把思考过程放在
+    // <think>...</think> 里混在 content 返回, 必须剥掉再给用户.
+    // 兜底: 有 <think> 开头但没闭合标签时 (截断), 整段丢弃避免泄漏思考过程.
+    let interpretation = rawContent.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+    if (interpretation.startsWith('<think>')) interpretation = '';
 
     if (!interpretation) {
       return jsonResponse(req, { error: 'LLM returned empty interpretation' }, 502);
@@ -170,14 +175,17 @@ function buildPrompt(
       ? `${systemInstruction}\n\n以下是用户的${systemName}排盘数据：\n\`\`\`json\n${chartJson}\n\`\`\`\n\n请用${langWord}给出一段 ≤200 字的精炼解读，覆盖 3 个要点：\n• 性格核心特征（2 句话）\n• 当前运势核心提示（1 句话）\n• 一句可执行的温和建议`
       : `${systemInstruction}\n\nHere is the user's ${systemName} chart data:\n\`\`\`json\n${chartJson}\n\`\`\`\n\nReply in ${langWord} (≤200 words / about 200 characters). Cover three points:\n• Core personality trait (2 sentences)\n• Key current trend (1 sentence)\n• One gentle, actionable suggestion`;
 
-    return { prompt: userPrompt, model: pickModel(tier, locale), maxTokens: 500 };
+    // 注: 推理模型 (MiniMax M / DeepSeek R) 的思考过程也消耗 max_tokens,
+    // 预算必须给足, 否则正文还没开始就被截断.
+    // 实测 (MiniMax-M2.7-highspeed + 完整八字 chart): 2000 截断, 3000 完整; 取 3500 留余量.
+    return { prompt: userPrompt, model: pickModel(tier, locale), maxTokens: 3500 };
   }
 
   const userPrompt = locale === 'zh-CN'
     ? `${systemInstruction}\n\n以下是用户的${systemName}排盘数据：\n\`\`\`json\n${chartJson}\n\`\`\`\n\n请用${langWord}给出完整结构化解读（800-1500 字）。覆盖六大维度：\n1. 性格与天赋\n2. 事业与学业\n3. 财运\n4. 感情与人际关系\n5. 健康\n6. 流年与近期趋势（未来 6-12 个月）\n\n每个维度给 2-3 句具体观察，呼应排盘数据而非泛泛而谈。`
     : `${systemInstruction}\n\nHere is the user's ${systemName} chart data:\n\`\`\`json\n${chartJson}\n\`\`\`\n\nReply in ${langWord} (800-1500 words / characters). Cover six dimensions:\n1. Personality & innate talents\n2. Career & studies\n3. Wealth\n4. Love & relationships\n5. Health\n6. Annual / near-term trend (next 6-12 months)\n\nEach dimension: 2-3 specific observations that explicitly reference the chart data above.`;
 
-  return { prompt: userPrompt, model: pickModel(tier, locale), maxTokens: 2000 };
+  return { prompt: userPrompt, model: pickModel(tier, locale), maxTokens: 6000 };
 }
 
 function pickModel(tier: 'brief' | 'detailed', locale: 'en' | 'zh-CN'): string {
