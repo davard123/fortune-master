@@ -8,8 +8,8 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Resource-Policy: same-origin
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://xjvoqpijrpjmgqkqwhqd.supabase.co wss://xjvoqpijrpjmgqkqwhqd.supabase.co https://api.deepseek.com https://*.google-analytics.com https://*.googletagmanager.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+  Cross-Origin-Resource-Policy: cross-origin
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval'; script-src-attr 'self' 'unsafe-inline'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' blob: data: https://xjvoqpijrpjmgqkqwhqd.supabase.co wss://xjvoqpijrpjmgqkqwhqd.supabase.co https://api.deepseek.com https://*.google-analytics.com https://*.googletagmanager.com; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
 
 /privacy/*
   X-Robots-Tag: noindex, nofollow
