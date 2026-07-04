@@ -10,7 +10,7 @@ import '../../core/widgets/gold_dust_backdrop.dart';
 import '../../core/widgets/mystic_compass.dart';
 
 /// 部署站点基址 (Cloudflare Pages). 改域名只需改这里一处.
-const String _kSiteBaseUrl = 'https://fortune-master.pages.dev';
+const String _kSiteBaseUrl = 'https://fortune.fopusha.com';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

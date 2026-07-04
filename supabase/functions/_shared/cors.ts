@@ -8,7 +8,8 @@
 //   - *.fortunemaster.app       (production custom domain, future)
 // 开发期:
 const ALLOWED_ORIGINS: readonly string[] = [
-  'https://fortune-master.pages.dev',
+  'https://fortune.fopusha.com',        // 生产域名 (2026-07-03 起)
+  'https://fortune-master.pages.dev',   // Pages 默认域名 (preview)
   'https://fortunemaster.app',
   'https://www.fortunemaster.app',
   'http://localhost:3000',   // flutter run -d chrome --web-port=3000
@@ -16,7 +17,7 @@ const ALLOWED_ORIGINS: readonly string[] = [
   'http://localhost:54321',  // supabase functions serve 本地
 ];
 
-const DEFAULT_ORIGIN = 'https://fortune-master.pages.dev';
+const DEFAULT_ORIGIN = 'https://fortune.fopusha.com';
 
 const BASE_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
