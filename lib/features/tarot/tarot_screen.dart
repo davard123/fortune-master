@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/widgets/interpret_section.dart';
 import '../../data/repositories/fortune_repository.dart';
 
 // ============================================================================
@@ -22,12 +23,22 @@ class TarotFormState {
   final String? error;
   final Map<String, dynamic>? result;
 
+  // LLM 解读 (镜像 BaziFormState 的解读状态设计)
+  final bool isInterpreting;
+  final String? interpretError;
+  final InterpretResult? briefInterpretation;
+  final InterpretResult? detailedInterpretation;
+
   const TarotFormState({
     this.spread = 'three',
     this.question,
     this.isSubmitting = false,
     this.error,
     this.result,
+    this.isInterpreting = false,
+    this.interpretError,
+    this.briefInterpretation,
+    this.detailedInterpretation,
   });
 
   TarotFormState copyWith({
@@ -36,9 +47,16 @@ class TarotFormState {
     bool? isSubmitting,
     String? error,
     Map<String, dynamic>? result,
+    bool? isInterpreting,
+    String? interpretError,
+    InterpretResult? briefInterpretation,
+    InterpretResult? detailedInterpretation,
     bool clearError = false,
     bool clearResult = false,
     bool clearQuestion = false,
+    bool clearInterpretError = false,
+    bool clearBriefInterpret = false,
+    bool clearDetailedInterpret = false,
   }) {
     return TarotFormState(
       spread: spread ?? this.spread,
@@ -46,6 +64,15 @@ class TarotFormState {
       isSubmitting: isSubmitting ?? this.isSubmitting,
       error: clearError ? null : (error ?? this.error),
       result: clearResult ? null : (result ?? this.result),
+      isInterpreting: isInterpreting ?? this.isInterpreting,
+      interpretError:
+          clearInterpretError ? null : (interpretError ?? this.interpretError),
+      briefInterpretation: clearBriefInterpret
+          ? null
+          : (briefInterpretation ?? this.briefInterpretation),
+      detailedInterpretation: clearDetailedInterpret
+          ? null
+          : (detailedInterpretation ?? this.detailedInterpretation),
     );
   }
 
@@ -67,6 +94,9 @@ class TarotFormNotifier extends StateNotifier<TarotFormState> {
       isSubmitting: true,
       clearError: true,
       clearResult: true,
+      clearInterpretError: true,
+      clearBriefInterpret: true,
+      clearDetailedInterpret: true,
     );
     try {
       final r = await repo.drawTarot(
@@ -76,6 +106,40 @@ class TarotFormNotifier extends StateNotifier<TarotFormState> {
       state = state.copyWith(result: r, isSubmitting: false);
     } catch (e) {
       state = state.copyWith(error: e.toString(), isSubmitting: false);
+    }
+  }
+
+  /// 调用 LLM 解读. 镜像 BaziFormNotifier.interpret 的升档逻辑
+  /// (brief → detailed 时只保留 detailed).
+  /// 注意: chart-tarot 返回顶层 {cards, spread, ...}, 不像 chart-bazi 包在
+  /// chart_data 里, 所以直接传整个 result.
+  Future<void> interpret({required String tier, required String locale}) async {
+    if (state.result == null || state.isInterpreting) return;
+    state = state.copyWith(isInterpreting: true, clearInterpretError: true);
+    try {
+      final r = await repo.interpret(
+        system: 'tarot',
+        tier: tier,
+        locale: locale,
+        chart: Map<String, dynamic>.from(state.result!),
+      );
+      if (tier == 'brief') {
+        state = state.copyWith(
+          briefInterpretation: r,
+          isInterpreting: false,
+        );
+      } else {
+        state = state.copyWith(
+          detailedInterpretation: r,
+          clearBriefInterpret: true,
+          isInterpreting: false,
+        );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        interpretError: e.toString(),
+        isInterpreting: false,
+      );
     }
   }
 
@@ -105,7 +169,7 @@ class TarotScreen extends ConsumerWidget {
       body: SafeArea(
         child: state.result == null
             ? _TarotForm(l10n: l10n, state: state)
-            : _TarotResult(l10n: l10n, chart: state.result!),
+            : _TarotResult(l10n: l10n, state: state),
       ),
     );
   }
@@ -242,11 +306,12 @@ class _TarotFormState extends ConsumerState<_TarotForm> {
 
 class _TarotResult extends ConsumerWidget {
   final AppL10n l10n;
-  final Map<String, dynamic> chart;
-  const _TarotResult({required this.l10n, required this.chart});
+  final TarotFormState state;
+  const _TarotResult({required this.l10n, required this.state});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final chart = state.result!;
     final cards = (chart['cards'] as List? ?? [])
         .cast<Map<String, dynamic>>()
         .toList();
@@ -292,11 +357,65 @@ class _TarotResult extends ConsumerWidget {
             _CelticCrossLayout(cards: cards, isZh: isZh, l10n: l10n),
           const SizedBox(height: 24),
 
-          OutlinedButton.icon(
-            icon: const Icon(Icons.refresh),
-            label: Text(l10n.tarotDrawAgain),
-            onPressed: notifier.reset,
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.refresh),
+                  label: Text(l10n.tarotDrawAgain),
+                  onPressed: notifier.reset,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton.icon(
+                  icon: state.isInterpreting
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.auto_awesome),
+                  label: Text(state.isInterpreting
+                      ? l10n.interpretLoading
+                      : l10n.actionInterpret),
+                  onPressed: state.isInterpreting ||
+                          (state.briefInterpretation != null &&
+                              state.detailedInterpretation != null)
+                      ? null
+                      : () => notifier.interpret(
+                            tier: state.briefInterpretation == null
+                                ? 'brief'
+                                : 'detailed',
+                            locale: Localizations.localeOf(context)
+                                .languageCode,
+                          ),
+                ),
+              ),
+            ],
           ),
+
+          if (state.briefInterpretation != null ||
+              state.detailedInterpretation != null ||
+              state.interpretError != null) ...[
+            const SizedBox(height: 16),
+            InterpretSection(
+              l10n: l10n,
+              brief: state.briefInterpretation,
+              detailed: state.detailedInterpretation,
+              error: state.interpretError,
+              onRetry: state.isInterpreting
+                  ? null
+                  : () => notifier.interpret(
+                        tier: state.briefInterpretation == null
+                            ? 'brief'
+                            : 'detailed',
+                        locale:
+                            Localizations.localeOf(context).languageCode,
+                      ),
+            ),
+          ],
         ],
       ),
     );

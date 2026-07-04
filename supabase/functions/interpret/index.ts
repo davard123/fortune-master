@@ -66,13 +66,18 @@ serve(async (req) => {
     }
 
     // === Provider configuration ===
+    // 通用三件套 (推荐, 适配任何 OpenAI 兼容 API: MiniMax / DeepSeek / FreeLLMAPI):
+    //   LLM_BASE_URL   如 https://api.minimaxi.com/v1
+    //   LLM_API_KEY
+    //   LLM_MODEL      如 MiniMax-Text-01 (可选 LLM_MODEL_BRIEF / LLM_MODEL_DETAILED 分层覆盖)
+    // 旧变量 FREELLMAPI_URL/KEY、DEEPSEEK_API_KEY 仍兼容.
     const isPublicRelease = Deno.env.get('IS_PUBLIC_RELEASE') === 'true';
 
-    const url = Deno.env.get('FREELLMAPI_URL') ??
-      Deno.env.get('LLM_BASE_URL') ??
+    const url = Deno.env.get('LLM_BASE_URL') ??
+      Deno.env.get('FREELLMAPI_URL') ??
       'http://localhost:3001/v1';
-    const key = Deno.env.get('FREELLMAPI_KEY') ??
-      Deno.env.get('LLM_API_KEY') ??
+    const key = Deno.env.get('LLM_API_KEY') ??
+      Deno.env.get('FREELLMAPI_KEY') ??
       Deno.env.get('DEEPSEEK_API_KEY') ??
       '';
 
@@ -97,6 +102,8 @@ serve(async (req) => {
       body.locale,
     );
 
+    // 超时兜底: 上游 LLM 挂起时不能让用户无限等 (brief 60s / detailed 120s)
+    const timeoutMs = body.tier === 'detailed' ? 120_000 : 60_000;
     const llmRes = await fetch(`${url.replace(/\/$/, '')}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -110,6 +117,7 @@ serve(async (req) => {
         max_tokens: maxTokens,
         stream: false,
       }),
+      signal: AbortSignal.timeout(timeoutMs),
     });
 
     if (!llmRes.ok) {
@@ -173,6 +181,15 @@ function buildPrompt(
 }
 
 function pickModel(tier: 'brief' | 'detailed', locale: 'en' | 'zh-CN'): string {
+  // 优先级: 分层覆盖 > 通用覆盖 > FreeLLMAPI 默认路由表.
+  // 换 provider (MiniMax/DeepSeek/...) 只需设 LLM_MODEL, 不用改代码 ——
+  // 下面的 FreeLLMAPI 风格模型名 (zhipu/... github/...) 其他 provider 不认识.
+  const tierOverride = tier === 'detailed'
+    ? Deno.env.get('LLM_MODEL_DETAILED')
+    : Deno.env.get('LLM_MODEL_BRIEF');
+  const override = tierOverride ?? Deno.env.get('LLM_MODEL');
+  if (override) return override;
+
   if (locale === 'zh-CN') {
     return tier === 'detailed' ? 'cloudflare/kimi-k2' : 'zhipu/glm-4.5';
   }

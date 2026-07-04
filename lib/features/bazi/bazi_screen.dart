@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/widgets/interpret_section.dart';
 import '../../data/repositories/fortune_repository.dart';
 
 // ============================================================================
@@ -581,7 +582,7 @@ class _BaziResult extends ConsumerWidget {
               state.detailedInterpretation != null ||
               state.interpretError != null) ...[
             const SizedBox(height: 16),
-            _InterpretSection(
+            InterpretSection(
               l10n: l10n,
               brief: state.briefInterpretation,
               detailed: state.detailedInterpretation,
@@ -603,94 +604,4 @@ class _BaziResult extends ConsumerWidget {
   }
 }
 
-/// LLM 解读渲染区 (独立 widget, 不依赖 ConsumerWidget, 避免 State 重置)
-class _InterpretSection extends StatelessWidget {
-  final AppL10n l10n;
-  final InterpretResult? brief;
-  final InterpretResult? detailed;
-  final String? error;
-  final VoidCallback? onRetry;
-
-  const _InterpretSection({
-    required this.l10n,
-    this.brief,
-    this.detailed,
-    this.error,
-    this.onRetry,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final active = detailed ?? brief;
-    return Card(
-      color: Theme.of(context).colorScheme.tertiaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.auto_awesome,
-                    color: Theme.of(context).colorScheme.onTertiaryContainer),
-                const SizedBox(width: 8),
-                Text(
-                  detailed != null
-                      ? l10n.tierDetailed
-                      : l10n.tierBrief,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onTertiaryContainer,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const Spacer(),
-                if (active != null)
-                  Text(
-                    active.model.split('/').last,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onTertiaryContainer,
-                        ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (error != null)
-              Text(
-                '${l10n.errorServer}\n$error',
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.error),
-              )
-            else if (active != null)
-              SelectableText(
-                active.text,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onTertiaryContainer,
-                  height: 1.5,
-                ),
-              ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.interpretDisclaimer,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.outline,
-                    fontStyle: FontStyle.italic,
-                  ),
-            ),
-            if (error != null && onRetry != null) ...[
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                icon: const Icon(Icons.refresh),
-                label: Text(l10n.interpretRetry),
-                onPressed: onRetry,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
+// _InterpretSection 已提取为共享组件: lib/core/widgets/interpret_section.dart
