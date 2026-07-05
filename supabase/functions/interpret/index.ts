@@ -61,9 +61,11 @@ serve(async (req) => {
       return jsonResponse(req, { error: 'tier must be "brief" or "detailed"' }, 400);
     }
 
-    if (body.locale !== 'en' && body.locale !== 'zh-CN') {
-      return jsonResponse(req, { error: 'locale must be "en" or "zh-CN"' }, 400);
-    }
+    // 归一化 locale: Flutter 的 languageCode 只给 "zh"/"en", 也可能来
+    // "zh-Hans"/"zh-TW" 等完整 tag —— zh* 一律按简中处理, 其余回落英文.
+    const locale: 'en' | 'zh-CN' =
+      String(body.locale ?? '').toLowerCase().startsWith('zh') ? 'zh-CN' : 'en';
+    body.locale = locale;
 
     // === Provider configuration ===
     // 通用三件套 (推荐, 适配任何 OpenAI 兼容 API: MiniMax / DeepSeek / FreeLLMAPI):

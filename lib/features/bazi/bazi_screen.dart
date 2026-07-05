@@ -570,7 +570,7 @@ class _BaziResult extends ConsumerWidget {
                                 ? 'brief'
                                 : 'detailed',
                             locale: Localizations.localeOf(context)
-                                .languageCode,
+                                .toLanguageTag(),
                           ),
                 ),
               ),
@@ -594,7 +594,7 @@ class _BaziResult extends ConsumerWidget {
                             ? 'brief'
                             : 'detailed',
                         locale:
-                            Localizations.localeOf(context).languageCode,
+                            Localizations.localeOf(context).toLanguageTag(),
                       ),
             ),
           ],
