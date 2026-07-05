@@ -8,7 +8,9 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { handleCorsPreflight, jsonResponse } from '../_shared/cors.ts';
 
 interface InterpretRequest {
-  system: 'bazi' | 'tarot' | 'qimen' | 'ziwei' | 'iching';
+  system:
+    | 'bazi' | 'tarot' | 'qimen' | 'ziwei'
+    | 'iching' | 'meihua' | 'astro' | 'dream';
   tier: 'brief' | 'detailed';
   locale: 'en' | 'zh-CN';
   chart: Record<string, unknown>;
@@ -28,6 +30,9 @@ const SYSTEM_NAME_ZH: Record<string, string> = {
   qimen: '奇门遁甲',
   ziwei: '紫微斗数',
   iching: '易经 / 六爻',
+  meihua: '梅花易数',
+  astro: '西方占星',
+  dream: '周公解梦',
 };
 
 const SYSTEM_NAME_EN: Record<string, string> = {
@@ -36,6 +41,9 @@ const SYSTEM_NAME_EN: Record<string, string> = {
   qimen: 'Qimen Dunjia',
   ziwei: 'Zi Wei Dou Shu',
   iching: 'I Ching',
+  meihua: 'Plum Blossom Numerology',
+  astro: 'Western Astrology',
+  dream: 'Zhou Gong Dream Interpretation',
 };
 
 serve(async (req) => {
@@ -171,6 +179,19 @@ function buildPrompt(
   const systemInstruction = locale === 'zh-CN'
     ? `你是 Fortune Master 「中西算命大全」APP 的资深命理师顾问。你的解读必须 (1) 基于提供的 ${systemName} 排盘数据，不编造数据; (2) 语气温和、神秘但不神棍; (3) 明确不构成医疗、法律、财务、心理、职业等专业建议; (4) 不替用户做命运裁决; (5) 末尾加一句：以上解读仅供娱乐参考，不构成专业建议。`
     : `You are a senior divination consultant for Fortune Master, a bilingual Chinese-Western fortune-telling app. Your interpretation must: (1) ground every claim in the ${systemName} chart data provided — never invent; (2) be warm and mystical without being preachy; (3) include an explicit disclaimer that it is NOT a substitute for medical, legal, financial, psychological, or career advice; (4) refrain from making deterministic life predictions; (5) end with: "This interpretation is for entertainment only and is not professional advice."`;
+
+  // 周公解梦: 没有"排盘", chart 是 {dream: 梦境描述}。走专用 prompt。
+  if (system === 'dream') {
+    const dreamText = String((chart as Record<string, unknown>).dream ?? '').slice(0, 2000);
+    const dreamPrompt = locale === 'zh-CN'
+      ? `${systemInstruction}\n\n用户描述的梦境：\n"""\n${dreamText}\n"""\n\n请按《周公解梦》的传统象征体系解读这个梦，${tier === 'brief' ? '300 字左右' : '600-900 字'}。要求：\n1. 先点名梦中出现的关键意象（如水、蛇、飞行），并给出传统典籍中的象征含义\n2. 结合现代心理学视角给一层温和的补充解释\n3. 给一条可执行的温和建议\n4. 不做吉凶断言，尤其不预测疾病、死亡、灾祸`
+      : `${systemInstruction}\n\nThe user's dream:\n"""\n${dreamText}\n"""\n\nInterpret this dream in the tradition of Zhou Gong dream symbolism (${tier === 'brief' ? '~300 words' : '600-900 words'}). Requirements:\n1. Name the key symbols that appeared in the dream and their traditional meanings\n2. Add a gentle modern-psychology perspective\n3. One gentle, actionable suggestion\n4. No fortune/misfortune verdicts — especially no predictions of illness, death, or disaster`;
+    return {
+      prompt: dreamPrompt,
+      model: pickModel(tier, locale),
+      maxTokens: tier === 'brief' ? 3500 : 6000,
+    };
+  }
 
   if (tier === 'brief') {
     const userPrompt = locale === 'zh-CN'

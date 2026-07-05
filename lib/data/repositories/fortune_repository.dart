@@ -121,8 +121,14 @@ class FortuneRepository {
     return Map<String, dynamic>.from(res.data);
   }
 
-  // === 后续添加更多术数的 compute 方法 ===
-  // Future<Map<String, dynamic>> computeZiwei(...) async { ... }
+  /// 通用 chart-* Edge Function 调用 (ziwei/liuyao/meihua/astro 等)
+  Future<Map<String, dynamic>> invokeChart(
+    String functionName,
+    Map<String, dynamic> body,
+  ) async {
+    final res = await _client.functions.invoke(functionName, body: body);
+    return Map<String, dynamic>.from(res.data);
+  }
 }
 
 /// 全局单例, Riverpod Provider 注入.
