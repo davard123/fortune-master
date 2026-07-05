@@ -25,7 +25,7 @@ echo "==> 复制 Pages 配置"
 cp _headers _redirects build/web/
 
 V=$(date +%s)
-echo "==> cache-bust: ?v=$V"
+echo "==> cache-bust ?v=$V + 字体兜底镜像 (大陆可访问)"
 python - "$V" <<'PYEOF'
 import sys
 v = sys.argv[1]
@@ -34,8 +34,16 @@ s = open(p, encoding='utf-8').read()
 open(p, 'w', encoding='utf-8').write(s.replace('flutter_bootstrap.js"', f'flutter_bootstrap.js?v={v}"'))
 p2 = 'build/web/flutter_bootstrap.js'
 b = open(p2, encoding='utf-8').read()
-open(p2, 'w', encoding='utf-8').write(b.replace('"main.dart.js"', f'"main.dart.js?v={v}"'))
-print('patched index.html + flutter_bootstrap.js')
+b = b.replace('"main.dart.js"', f'"main.dart.js?v={v}"')
+# CanvasKit 渲染 CJK 文字需下载 Noto 兜底字体, 默认源 fonts.gstatic.com 大陆不可访问
+# → 整站文字不显示。指到 loli.net 镜像 (需与 _headers 的 CSP 白名单保持一致)。
+b = b.replace(
+    '_flutter.loader.load({',
+    '_flutter.loader.load({\n  config: { fontFallbackBaseUrl: "https://gstatic.loli.net/s/" },',
+    1,
+)
+open(p2, 'w', encoding='utf-8').write(b)
+print('patched index.html + flutter_bootstrap.js (cache-bust + fontFallbackBaseUrl)')
 PYEOF
 
 echo "==> wrangler pages deploy"
