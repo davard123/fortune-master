@@ -102,9 +102,27 @@ class FortuneRepository {
     );
   }
 
+  /// 调用 /functions/v1/chart-qimen 奇门排盘 (自实现拆补法引擎)
+  Future<Map<String, dynamic>> computeQimen({
+    required DateTime when,
+    String? question,
+  }) async {
+    final res = await _client.functions.invoke(
+      'chart-qimen',
+      body: {
+        'year': when.year,
+        'month': when.month,
+        'day': when.day,
+        'hour': when.hour,
+        'minute': when.minute,
+        if (question != null && question.isNotEmpty) 'question': question,
+      },
+    );
+    return Map<String, dynamic>.from(res.data);
+  }
+
   // === 后续添加更多术数的 compute 方法 ===
   // Future<Map<String, dynamic>> computeZiwei(...) async { ... }
-  // Future<Map<String, dynamic>> computeQimen(...) async { ... }
 }
 
 /// 全局单例, Riverpod Provider 注入.

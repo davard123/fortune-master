@@ -80,6 +80,12 @@
   "adFailed": "Could not load ad. Please try again.",
 
   "loading": "Loading…",
+  "comingSoon": "Coming soon",
+  "comingSoonBody": "This divination system is being crafted. Stay tuned.",
+  "qimenCastNow": "Cast for this moment",
+  "qimenDatetime": "Date & time",
+  "qimenZhiFu": "Chief star 值符",
+  "qimenZhiShi": "Lead gate 值使",
   "errorNetwork": "Network error. Please check your connection.",
   "errorLoginRequired": "Please sign in to view this reading.",
   "errorServer": "Server error. Please try again later.",

@@ -174,8 +174,8 @@ function buildPrompt(
 
   if (tier === 'brief') {
     const userPrompt = locale === 'zh-CN'
-      ? `${systemInstruction}\n\n以下是用户的${systemName}排盘数据：\n\`\`\`json\n${chartJson}\n\`\`\`\n\n请用${langWord}给出一段 ≤200 字的精炼解读，覆盖 3 个要点：\n• 性格核心特征（2 句话）\n• 当前运势核心提示（1 句话）\n• 一句可执行的温和建议`
-      : `${systemInstruction}\n\nHere is the user's ${systemName} chart data:\n\`\`\`json\n${chartJson}\n\`\`\`\n\nReply in ${langWord} (≤200 words / about 200 characters). Cover three points:\n• Core personality trait (2 sentences)\n• Key current trend (1 sentence)\n• One gentle, actionable suggestion`;
+      ? `${systemInstruction}\n\n以下是用户的${systemName}排盘数据：\n\`\`\`json\n${chartJson}\n\`\`\`\n\n请用${langWord}给出一段 300-400 字的解读。硬性要求：\n1. 开头第一句必须先复述排盘的核心事实（八字要点名四柱干支和日主，塔罗要点名抽到的牌，奇门要点名局数和值符值使），让用户确认这是"他自己的盘"\n2. 每个论断都要挂在具体的盘面符号上（如"因为你时柱透出X"），不许写放之四海皆准的空话\n3. 覆盖：性格核心特征 / 当前运势提示 / 一条可执行的温和建议`
+      : `${systemInstruction}\n\nHere is the user's ${systemName} chart data:\n\`\`\`json\n${chartJson}\n\`\`\`\n\nReply in ${langWord} (300-400 words). Hard requirements:\n1. The FIRST sentence must restate the core facts of THIS chart (for Bazi: the four pillars and day master; for Tarot: the exact cards drawn; for Qimen: the ju number and chief star/gate) so the user can confirm it is their own chart\n2. Anchor every claim to a specific symbol in the chart ("because your hour pillar shows X") — no generic statements that could apply to anyone\n3. Cover: core personality / current trend / one gentle, actionable suggestion`;
 
     // 注: 推理模型 (MiniMax M / DeepSeek R) 的思考过程也消耗 max_tokens,
     // 预算必须给足, 否则正文还没开始就被截断.

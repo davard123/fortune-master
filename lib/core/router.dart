@@ -4,10 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import '../features/home/home_screen.dart';
 import '../features/bazi/bazi_screen.dart';
 import '../features/tarot/tarot_screen.dart';
 import '../features/iching/iching_screen.dart';
+import '../features/qimen/qimen_screen.dart';
+import '../features/common/coming_soon_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/community/community_screen.dart';
 import '../features/profile/profile_screen.dart';
@@ -25,6 +29,24 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/bazi', builder: (_, __) => const BaziScreen()),
       GoRoute(path: '/tarot', builder: (_, __) => const TarotScreen()),
       GoRoute(path: '/iching', builder: (_, __) => const IchingScreen()),
+      GoRoute(path: '/qimen', builder: (_, __) => const QimenScreen()),
+      // 后端尚未接线的术数 → 占位页 (避免 404)
+      GoRoute(
+          path: '/ziwei',
+          builder: (ctx, _) =>
+              ComingSoonScreen(title: AppL10n.of(ctx).systemZiwei)),
+      GoRoute(
+          path: '/meihua',
+          builder: (ctx, _) =>
+              ComingSoonScreen(title: AppL10n.of(ctx).systemMeihua)),
+      GoRoute(
+          path: '/astro',
+          builder: (ctx, _) =>
+              ComingSoonScreen(title: AppL10n.of(ctx).systemHoroscope)),
+      GoRoute(
+          path: '/dream',
+          builder: (ctx, _) =>
+              ComingSoonScreen(title: AppL10n.of(ctx).systemDream)),
 
       // 社区 + 个人中心
       GoRoute(path: '/community', builder: (_, __) => const CommunityScreen()),

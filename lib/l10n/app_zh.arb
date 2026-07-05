@@ -79,6 +79,12 @@
   "adFailed": "广告加载失败，请稍后重试。",
 
   "loading": "加载中…",
+  "comingSoon": "即将上线",
+  "comingSoonBody": "该术数模块正在打造中，敬请期待。",
+  "qimenCastNow": "以当前时刻起局",
+  "qimenDatetime": "起局时间",
+  "qimenZhiFu": "值符",
+  "qimenZhiShi": "值使",
   "errorNetwork": "网络错误，请检查连接。",
   "errorLoginRequired": "请登录后查看此解读。",
   "errorServer": "服务器错误，请稍后重试。",
