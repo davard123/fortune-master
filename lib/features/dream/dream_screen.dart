@@ -38,7 +38,7 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
         });
     if (!mounted) return;
     await notifier.interpret(
-      tier: 'brief',
+      tier: 'detailed',
       locale: Localizations.localeOf(context).toLanguageTag(),
     );
   }

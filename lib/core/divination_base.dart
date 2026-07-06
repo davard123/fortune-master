@@ -121,8 +121,9 @@ class DivinationActions extends StatelessWidget {
     required this.retryLabel,
   });
 
+  // 自测版全解锁: 一键直出深度解读 (brief 档保留在后端, 未来做付费墙分层时再启用)
   void _interpret(BuildContext context) => notifier.interpret(
-        tier: state.brief == null ? 'brief' : 'detailed',
+        tier: 'detailed',
         locale: Localizations.localeOf(context).toLanguageTag(),
       );
 
@@ -153,8 +154,7 @@ class DivinationActions extends StatelessWidget {
                 label: Text(state.isInterpreting
                     ? l10n.interpretLoading
                     : l10n.actionInterpret),
-                onPressed: state.isInterpreting ||
-                        (state.brief != null && state.detailed != null)
+                onPressed: state.isInterpreting || state.detailed != null
                     ? null
                     : () => _interpret(context),
               ),

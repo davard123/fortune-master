@@ -381,13 +381,10 @@ class _TarotResult extends ConsumerWidget {
                       ? l10n.interpretLoading
                       : l10n.actionInterpret),
                   onPressed: state.isInterpreting ||
-                          (state.briefInterpretation != null &&
-                              state.detailedInterpretation != null)
+                          state.detailedInterpretation != null
                       ? null
                       : () => notifier.interpret(
-                            tier: state.briefInterpretation == null
-                                ? 'brief'
-                                : 'detailed',
+                            tier: 'detailed',
                             locale: Localizations.localeOf(context)
                                 .toLanguageTag(),
                           ),
@@ -408,9 +405,7 @@ class _TarotResult extends ConsumerWidget {
               onRetry: state.isInterpreting
                   ? null
                   : () => notifier.interpret(
-                        tier: state.briefInterpretation == null
-                            ? 'brief'
-                            : 'detailed',
+                        tier: 'detailed',
                         locale:
                             Localizations.localeOf(context).toLanguageTag(),
                       ),
