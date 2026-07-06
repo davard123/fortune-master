@@ -164,6 +164,20 @@ serve(async (req) => {
   }
 });
 
+/** 从盘面里尽力挖出出生年份 (bazi.birthInfo.solarDate / ziwei.solarDate / astro.natal.origin.localDateTime) */
+function findBirthYear(chart: Record<string, unknown>): number | null {
+  const candidates: unknown[] = [
+    (chart.birthInfo as Record<string, unknown> | undefined)?.solarDate,
+    chart.solarDate,
+    ((chart.natal as Record<string, unknown> | undefined)?.origin as Record<string, unknown> | undefined)?.localDateTime,
+  ];
+  for (const c of candidates) {
+    const m = String(c ?? '').match(/(19|20)\d{2}/);
+    if (m) return Number(m[0]);
+  }
+  return null;
+}
+
 function buildPrompt(
   system: string,
   chart: Record<string, unknown>,
@@ -174,11 +188,28 @@ function buildPrompt(
   const systemName = locale === 'zh-CN'
     ? SYSTEM_NAME_ZH[system]
     : SYSTEM_NAME_EN[system];
-  const chartJson = JSON.stringify(chart, null, 2).slice(0, 6000);
+  const chartJson = JSON.stringify(chart, null, 2).slice(0, 12000);
+
+  // ===== 时间上下文 (关键!) =====
+  // LLM 不知道"今天"是哪天。不注入当前日期, 它面对大限/大运列表只能瞎选,
+  // 曾出现把 1990 年生人在 2026 年说成"正行 46-55 岁大限"的严重错误。
+  const nowCn = new Intl.DateTimeFormat('zh-CN', {
+    timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+  const birthYear = findBirthYear(chart);
+  const currentYearNum = Number(nowCn.slice(0, 4));
+  const ageLine = birthYear
+    ? (locale === 'zh-CN'
+        ? `命主生于 ${birthYear} 年，今年（${currentYearNum} 年）周岁约 ${currentYearNum - birthYear} 岁、虚岁约 ${currentYearNum - birthYear + 1} 岁。`
+        : `The person was born in ${birthYear}; as of ${currentYearNum} they are about ${currentYearNum - birthYear} years old.`)
+    : '';
+  const timeContext = locale === 'zh-CN'
+    ? `【时间基准】今天的公历日期是 ${nowCn}。${ageLine}\n涉及"当前大限/大运/流年/年龄"的一切论断，必须以上述日期和年龄为准来选择区间——例如大运列表里哪一步的起讫年份包含 ${currentYearNum} 年，那才是"当前"。选错年龄区间是最严重的错误。`
+    : `[Time anchor] Today's date is ${nowCn}. ${ageLine}\nAny claim about the "current" decadal luck period / annual luck / age MUST be selected using this date — e.g. the luck period whose year range contains ${currentYearNum} is the current one. Getting the age bracket wrong is the most serious possible error.`;
 
   const systemInstruction = locale === 'zh-CN'
-    ? `你是 Fortune Master 「中西算命大全」APP 的资深命理师顾问。你的解读必须 (1) 基于提供的 ${systemName} 排盘数据，不编造数据; (2) 语气温和、神秘但不神棍; (3) 明确不构成医疗、法律、财务、心理、职业等专业建议; (4) 不替用户做命运裁决; (5) 末尾加一句：以上解读仅供娱乐参考，不构成专业建议。`
-    : `You are a senior divination consultant for Fortune Master, a bilingual Chinese-Western fortune-telling app. Your interpretation must: (1) ground every claim in the ${systemName} chart data provided — never invent; (2) be warm and mystical without being preachy; (3) include an explicit disclaimer that it is NOT a substitute for medical, legal, financial, psychological, or career advice; (4) refrain from making deterministic life predictions; (5) end with: "This interpretation is for entertainment only and is not professional advice."`;
+    ? `你是 Fortune Master 「中西算命大全」APP 的资深命理师顾问。你的解读必须 (1) 基于提供的 ${systemName} 排盘数据，不编造数据; (2) 语气温和、神秘但不神棍; (3) 明确不构成医疗、法律、财务、心理、职业等专业建议; (4) 不替用户做命运裁决; (5) 末尾加一句：以上解读仅供娱乐参考，不构成专业建议。\n\n${timeContext}`
+    : `You are a senior divination consultant for Fortune Master, a bilingual Chinese-Western fortune-telling app. Your interpretation must: (1) ground every claim in the ${systemName} chart data provided — never invent; (2) be warm and mystical without being preachy; (3) include an explicit disclaimer that it is NOT a substitute for medical, legal, financial, psychological, or career advice; (4) refrain from making deterministic life predictions; (5) end with: "This interpretation is for entertainment only and is not professional advice."\n\n${timeContext}`;
 
   // 周公解梦: 没有"排盘", chart 是 {dream: 梦境描述}。走专用 prompt。
   if (system === 'dream') {
@@ -204,11 +235,51 @@ function buildPrompt(
     return { prompt: userPrompt, model: pickModel(tier, locale), maxTokens: 3500 };
   }
 
-  const userPrompt = locale === 'zh-CN'
-    ? `${systemInstruction}\n\n以下是用户的${systemName}排盘数据：\n\`\`\`json\n${chartJson}\n\`\`\`\n\n请用${langWord}给出完整结构化解读（800-1500 字）。覆盖六大维度：\n1. 性格与天赋\n2. 事业与学业\n3. 财运\n4. 感情与人际关系\n5. 健康\n6. 流年与近期趋势（未来 6-12 个月）\n\n每个维度给 2-3 句具体观察，呼应排盘数据而非泛泛而谈。`
-    : `${systemInstruction}\n\nHere is the user's ${systemName} chart data:\n\`\`\`json\n${chartJson}\n\`\`\`\n\nReply in ${langWord} (800-1500 words / characters). Cover six dimensions:\n1. Personality & innate talents\n2. Career & studies\n3. Wealth\n4. Love & relationships\n5. Health\n6. Annual / near-term trend (next 6-12 months)\n\nEach dimension: 2-3 specific observations that explicitly reference the chart data above.`;
+  // detailed: 全维度深度解读. 命理类 (bazi/ziwei) 强调大运/大限时间轴;
+  // 占卜类 (tarot/iching/meihua/qimen) 强调事项吉凶与时机; astro 强调行运.
+  const isDestinyChart = system === 'bazi' || system === 'ziwei' || system === 'astro';
+  const zhDimensions = isDestinyChart
+    ? `1. 命局总览 —— 格局、五行强弱、用神喜忌（点名具体干支/星曜佐证）
+2. 性格与天赋 —— 深层性格、适合的发展方向
+3. 当前所处阶段 —— 先按【时间基准】算准年龄，指出现在正行哪一步大运/大限（引用它的干支或宫位和起讫年份），当前处境如何
+4. 未来 10-15 年运势走向 —— 按大运/大限列表逐步展开：每一步引用具体干支（或宫位）与起讫年份，说明该阶段事业/财运/健康的总体趋势与关键转折点
+5. 财运 —— 正财偏财格局、聚财方式、破财风险点
+6. 事业与学业 —— 适合行业、贵人方位、发展节奏
+7. 感情与婚姻 —— 婚恋特质、相处课题、有利时段
+8. 健康 —— 五行偏枯对应的养生重点（不做疾病诊断）
+9. 开运建议 —— 基于用神喜忌的颜色/方位/行业等 3-5 条可执行建议`
+    : `1. 盘面总览 —— 核心格局与吉凶大势（点名具体符号佐证）
+2. 所问之事的直接答案 —— 结合问题给出倾向性判断与理由
+3. 时机分析 —— 何时行动有利、何时宜守（引用盘面依据）
+4. 财运相关提示
+5. 事业/所谋之事的走向
+6. 感情与人际维度的提示
+7. 风险与注意事项
+8. 3-5 条可执行建议`;
+  const enDimensions = isDestinyChart
+    ? `1. Chart overview — structure, elemental balance, favorable elements (cite specific pillars/stars)
+2. Personality & talents
+3. Current life stage — FIRST compute the age per the time anchor, then identify which decadal period is active NOW (cite its stems/palace and year range)
+4. The next 10-15 years — walk through the decadal luck list step by step, citing each period's stems/palace and year range, with the overall trend and turning points of each
+5. Wealth — patterns, how money comes, leak risks
+6. Career & studies
+7. Love & marriage
+8. Health focus areas (no medical diagnosis)
+9. 3-5 actionable suggestions based on favorable elements`
+    : `1. Chart overview — core pattern and overall tendency (cite specific symbols)
+2. Direct answer to the question asked, with reasoning
+3. Timing — when to act, when to hold (cite the chart)
+4. Wealth-related hints
+5. Career / the matter asked about
+6. Relationships
+7. Risks and cautions
+8. 3-5 actionable suggestions`;
 
-  return { prompt: userPrompt, model: pickModel(tier, locale), maxTokens: 6000 };
+  const userPrompt = locale === 'zh-CN'
+    ? `${systemInstruction}\n\n以下是用户的${systemName}排盘数据：\n\`\`\`json\n${chartJson}\n\`\`\`\n\n请用${langWord}给出完整结构化深度解读（1500-2500 字），按以下维度逐节展开，每节都必须引用具体盘面数据佐证，禁止写放之四海皆准的空话：\n${zhDimensions}`
+    : `${systemInstruction}\n\nHere is the user's ${systemName} chart data:\n\`\`\`json\n${chartJson}\n\`\`\`\n\nReply in ${langWord} with a full structured deep reading (1500-2500 words), section by section as below. Every section must cite specific chart data — no generic filler:\n${enDimensions}`;
+
+  return { prompt: userPrompt, model: pickModel(tier, locale), maxTokens: 12000 };
 }
 
 function pickModel(tier: 'brief' | 'detailed', locale: 'en' | 'zh-CN'): string {
